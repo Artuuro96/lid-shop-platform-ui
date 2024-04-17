@@ -1,12 +1,39 @@
 import { ReactNode } from 'react';
 import { Navigate, RouteObject, useRoutes } from 'react-router-dom';
-import Frame from './components/frame/Frame.tsx';
+import MiniDrawer from './components/MiniDrawer.tsx';
+import Dashboard from './components/dashboard/Dashboard.tsx';
+import Sales from './components/sales/Sales.tsx';
+import Clients from './components/clients/Clients.tsx';
+import Inventory from './components/inventory/Inventory.tsx';
+import { TitleContextProvider } from './context/TitleContext.tsx';
 
 export default function Router(): ReactNode {
   const routes: RouteObject[] = [
     {
       path: '/',
-      element: <Frame />
+      element: (
+        <TitleContextProvider>
+          <MiniDrawer />
+        </TitleContextProvider>
+      ),
+      children: [
+        {
+          path: '/panel',
+          element: <Dashboard />
+        },
+        {
+          path: '/ventas',
+          element: <Sales />
+        },  
+        {
+          path: '/clientes',
+          element: <Clients />
+        },
+        {
+          path: '/inventario',
+          element: <Inventory />
+        }
+      ]
     },
     {
       path: '*',

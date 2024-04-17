@@ -1,7 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 const PRIMARY = {
   lighter: '#00ABB3',
   light: '#00ABB3',
-  main: '#007A80',
+  main: '#F67E7D',
   dark: '#00494D',
   darker: '#00494D',
 };
@@ -9,7 +10,7 @@ const PRIMARY = {
 const SECONDARY = {
   lighter: '#8CB9C0',
   light: '#8CB9C0',
-  main: '#508991',
+  main: '#f67e7d',
   dark: '#3F6D73',
   darker: '#3F6D73',
 };
@@ -55,7 +56,8 @@ const palette = {
   warning: WARNING,
   error: ERROR,
   background: {
-    default: '#172A3A',
+    default: '#FFFFFF',
+    dark: '#1B2021'
   },
 };
 

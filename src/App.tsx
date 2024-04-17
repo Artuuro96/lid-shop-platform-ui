@@ -2,12 +2,14 @@ import './App.css'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Router from './routes'
 import { BrowserRouter } from 'react-router-dom'
+import palette from './pallete'
 
 function App() {
   const theme = createTheme({
     typography: {
-      fontFamily: ['Roboto', 'sans-serif'].join(','), // Agrega otras fuentes si es necesario
+      fontFamily: ['Nunito', 'sans-serif'].join(','), // Agrega otras fuentes si es necesario
     },
+    palette,
   })
 
   return (
