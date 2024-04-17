@@ -6,6 +6,7 @@ import Sales from './components/sales/Sales.tsx';
 import Clients from './components/clients/Clients.tsx';
 import Inventory from './components/inventory/Inventory.tsx';
 import { TitleContextProvider } from './context/TitleContext.tsx';
+import { getUrlPath } from './utils/get-url-path.tsx';
 
 export default function Router(): ReactNode {
   const routes: RouteObject[] = [
@@ -18,19 +19,19 @@ export default function Router(): ReactNode {
       ),
       children: [
         {
-          path: '/panel',
+          path: getUrlPath('dashboard'),
           element: <Dashboard />
         },
         {
-          path: '/ventas',
+          path: getUrlPath('sales'),
           element: <Sales />
         },  
         {
-          path: '/clientes',
+          path: getUrlPath('clients'),
           element: <Clients />
         },
         {
-          path: '/inventario',
+          path: getUrlPath('inventory'),
           element: <Inventory />
         }
       ]
