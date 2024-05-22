@@ -1,0 +1,5 @@
+export enum StatusEnum {
+  RESERVED = 'APARTADO',
+  AVAILABLE = 'DISPONIBLE',
+  SOLD_OUT = 'LIQUIDADO',
+}

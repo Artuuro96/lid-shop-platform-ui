@@ -1,50 +1,50 @@
 /* eslint-disable react-refresh/only-export-components */
 const PRIMARY = {
-  lighter: '#00ABB3',
-  light: '#00ABB3',
-  main: '#F67E7D',
-  dark: '#00494D',
-  darker: '#00494D',
+  lighter: '#f9a5a4',
+  light: '#f78b8a',
+  main: '#f67e7d',
+  dark: '#dd7171',
+  darker: '#c56564',
 };
 
 const SECONDARY = {
-  lighter: '#8CB9C0',
-  light: '#8CB9C0',
-  main: '#f67e7d',
-  dark: '#3F6D73',
-  darker: '#3F6D73',
+  lighter: '#333333',
+  light: '#1a1a1a',
+  main: '#000000',
+  dark: '#000000',
+  darker: '#000000',
 };
 
 const INFO = {
-  lighter: '#7BB7D0',
-  light: '#7BB7D0',
-  main: '#74B3CE',
-  dark: '#2F6A84',
-  darker: '#2F6A84',
+  lighter: '#ac4e78',
+  light: '#951b51',
+  main: '#89023E',
+  dark: '#7b0238',
+  darker: '#60012b',
 };
 
 const SUCCESS = {
-  lighter: '#81CBA8',
-  light: '#81CBA8',
-  main: '#09BC8A',
-  dark: '#347E5C',
-  darker: '#347E5C',
+  lighter: '#9dd5ce',
+  light: '#90d0c8',
+  main: '#84cbc2',
+  dark: '#77b7af',
+  darker: '#5c8e88',
 };
 
 const WARNING = {
-  lighter: '#E18A6A',
-  light: '#E18A6A',
-  main: '#D96941',
-  dark: '#BF4F26',
-  darker: '#BF4F26',
+  lighter: '#ffcc9a',
+  light: '#ffc58e',
+  main: '#ffbf81',
+  dark: '#e6ac74',
+  darker: '#cc9967',
 };
-
+  
 const ERROR = {
-  lighter: '#DB4C3E',
-  light: '#DB4C3E',
-  main: '#A62B1F',
-  dark: '#96271C',
-  darker: '#96271C',
+  lighter: '#e4576e',
+  light: '#e0425c',
+  main: '#dd2d4a',
+  dark: '#c72943',
+  darker: '#b1243b',
 };
 
 const palette = {
