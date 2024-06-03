@@ -12,3 +12,16 @@ export interface Article {
   status: StatusEnum;
   brand: string;
 }
+
+export interface Data {
+  itemCode: string;
+  item: string;
+  ticketPrice: number;
+  tax: number;
+  parcel: number;
+  otherCosts: number;
+  profit: number;
+  lidShopPrice: number;
+  status: StatusEnum;
+  brand: string;
+}

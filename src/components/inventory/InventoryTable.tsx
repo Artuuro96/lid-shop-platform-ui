@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -22,37 +21,28 @@ import { visuallyHidden } from '@mui/utils';
 import { StatusEnum } from '../../enum/status.enum';
 import { Chip } from '@mui/material';
 import ArticleDg from './ArticleDg';
-import { Article } from '../../interfaces/article.interface';
-import { useState } from 'react';
+import { Data } from '../../interfaces/article.interface';
+import { useState, Dispatch, SetStateAction, useMemo } from 'react';
+import { useDialogAlertContext } from '../../context/DialogAlertContext';
 
-interface Data {
-  itemCode: string;
-  item: string;
-  ticketPrice: number;
-  tax: number;
-  parcel: number;
-  otherCosts: number;
-  lidShopPrice: number;
-  profit: number;
-  status: StatusEnum;
-}
-
-function createData(
+/*function createData(
   itemCode: string,
   item: string,
   ticketPrice: number,
   tax: number,
+  brand: string,
   parcel: number,
   otherCosts: number,
   lidShopPrice: number,
   profit: number,
   status: StatusEnum
-): Data {
+): Article {
   return {
     itemCode,
     item,
     ticketPrice,
     tax,
+    brand,
     parcel,
     otherCosts,
     lidShopPrice,
@@ -62,20 +52,20 @@ function createData(
 }
 
 const rows = [
-  createData('A202413', 'GUESS MOCHILA VERDE ', 305, 3.7, 67, 21.29, 1650, 729, StatusEnum.AVAILABLE),
-  createData('A202414', 'STEVE NEGRA GRANDE CADENA', 452, 25.0, 51, 21.29, 1300, 450, StatusEnum.AVAILABLE),
-  createData('A202415', 'MK MOCHILA', 262, 16.0, 24, 21.29, 2100, 210, StatusEnum.AVAILABLE),
-  createData('A202416', 'MK CAFÉ', 159, 6.0, 24, 21.29, 2200, 400, StatusEnum.AVAILABLE),
-  createData('A202417', 'STEVE BLANCA', 356, 16.0, 49, 21.29, 7690, 800, StatusEnum.AVAILABLE),
-  createData('A202418', 'STEVE AZUL CIELO', 408, 3.2, 87, 21.29, 5320, 100, StatusEnum.AVAILABLE),
-  createData('A202419', 'BOLSA BLANCA COACH', 237, 9.0, 37, 21.29, 5403, 320, StatusEnum.AVAILABLE),
-  createData('A202420', 'MUÑEQUERA COACH BEIGE', 375, 0.0, 94, 21.29, 3980, 801, StatusEnum.AVAILABLE),
-  createData('A202421', 'KP CARTERA NEGRA', 518, 26.0, 65, 21.29, 361, 540, StatusEnum.AVAILABLE),
-  createData('A202422', 'LOCIÓN LOVE SPELL CASHMERE', 392, 0.2, 98, 21.29, 985, 1100, StatusEnum.AVAILABLE),
-  createData('A202423', 'CREMA LOVE SPELL', 318, 0, 81, 21.29, 3500, 980, StatusEnum.AVAILABLE),
-  createData('A202424', 'LOCIÓN LOVE SPELL', 360, 19.0, 9, 21.29, 1300, 430, StatusEnum.AVAILABLE),
-  createData('A202425', 'LOCIÓN LOVE SPELL', 437, 18.0, 63, 21.29, 2480, 1750, StatusEnum.AVAILABLE),
-];
+  createData('A202413', 'GUESS MOCHILA VERDE', 305, 3.7, 'GUESS', 67, 21.29, 1650, 729, StatusEnum.AVAILABLE),
+  createData('A202414', 'STEVE NEGRA GRANDE CADENA', 452, 25.0, 'STEVE MADDEN', 51, 21.29, 1300, 450, StatusEnum.AVAILABLE),
+  createData('A202415', 'MK MOCHILA', 262, 16.0, 'GUESS', 24, 21.29, 2100, 210, StatusEnum.AVAILABLE),
+  createData('A202416', 'MK CAFÉ', 159, 6.0, 'GUESS', 24, 21.29, 2200, 400, StatusEnum.AVAILABLE),
+  createData('A202417', 'STEVE BLANCA', 356, 16.0, 'GUESS', 49, 21.29, 7690, 800, StatusEnum.AVAILABLE),
+  createData('A202418', 'STEVE AZUL CIELO', 408, 3.2, 'GUESS', 87, 21.29, 5320, 100, StatusEnum.AVAILABLE),
+  createData('A202419', 'BOLSA BLANCA COACH', 237, 9.0, 'COACH', 37, 21.29, 5403, 320, StatusEnum.AVAILABLE),
+  createData('A202420', 'MUÑEQUERA COACH BEIGE', 375, 0.0, 'GUESS', 94, 21.29, 3980, 801, StatusEnum.AVAILABLE),
+  createData('A202421', 'KP CARTERA NEGRA', 518, 26.0, 'KIPLING', 65, 21.29, 361, 540, StatusEnum.AVAILABLE),
+  createData('A202422', 'LOCIÓN LOVE SPELL CASHMERE', 392, 0.2, 'LOVE', 98, 21.29, 985, 1100, StatusEnum.AVAILABLE),
+  createData('A202423', 'CREMA LOVE SPELL', 318, 0, 'GUESS', 81, 21.29, 3500, 980, StatusEnum.AVAILABLE),
+  createData('A202424', 'LOCIÓN LOVE SPELL', 360, 19.0, 'GUESS', 9, 21.29, 1300, 430, StatusEnum.AVAILABLE),
+  createData('A202425', 'LOCIÓN LOVE SPELL', 437, 18.0, 'GUESS', 63, 21.29, 2480, 1750, StatusEnum.AVAILABLE),
+];*/
 
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -241,13 +231,28 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 interface EnhancedTableToolbarProps {
   numSelected: number;
+  setArticle: Dispatch<SetStateAction<Data>>,
+  setOpenArticle: Dispatch<SetStateAction<boolean>>
+  selectedArticles: Data[]
 }
 
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-  const { numSelected } = props;
+  const { numSelected, setOpenArticle, setArticle, selectedArticles } = props;
+  const { setDgAlert } = useDialogAlertContext();
 
-  const onEdit = () => {
-    setOpenArticle
+  const onEditItem = () => {
+    setArticle(selectedArticles[0]);
+    setOpenArticle(true);
+  }
+
+  const onDeleteItems = () => {
+    const message = selectedArticles.map(article => `<li>${article.itemCode}</li>`)
+    setDgAlert({
+      title: '¿Estas seguro?',
+      textContent: `Lo siguientes elementos serán eliminados`,
+      html: `<ul>${message.join(' ')}</ul>`,
+      open: true,
+    })
   }
 
   return (
@@ -270,7 +275,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
           variant="subtitle1"
           component="div"
         >
-          {numSelected} selected
+          {numSelected} seleccionados
         </Typography>
       ) : (
         <Typography
@@ -285,12 +290,12 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       {numSelected > 0 ? (
         <>
           { numSelected > 1 || (<Tooltip title="Editar">
-            <IconButton onClick={() => onEdit()}>
+            <IconButton onClick={() => onEditItem()}>
               <EditIcon sx={{color: 'background.default'}}/>
             </IconButton>
           </Tooltip>)}
           <Tooltip title="Eliminar">
-            <IconButton>
+            <IconButton onClick={() => onDeleteItems()}>
               <DeleteIcon sx={{color: 'background.default'}}/>
             </IconButton>
           </Tooltip>
@@ -305,11 +310,16 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
     </Toolbar>
   );
 }
-export default function InventoryTable() {
+
+export default function InventoryTable({ articlesData }:{
+  articlesData: Data[],
+}) {
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof Data>('ticketPrice');
   const [selected, setSelected] = useState<readonly string[]>([]);
-  const [openArticleDg, setOpenArticleDg] = useState<boolean>(false)
+  const [selectedArticles, setSelectedArticles] = useState<Data[]>()
+  const [openArticleDg, setOpenArticleDg] = useState<boolean>(false);
+  const [article, setArticle] = useState<Data>({itemCode: 'HOLA'} as Data)
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -324,10 +334,12 @@ export default function InventoryTable() {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.itemCode);
+      const newSelected = articlesData.map((article) => article.itemCode);
+      setSelectedArticles(articlesData);
       setSelected(newSelected);
       return;
     }
+    setSelectedArticles([]);
     setSelected([]);
   };
 
@@ -358,6 +370,14 @@ export default function InventoryTable() {
         selected.slice(selectedIndex + 1),
       );
     }
+    const matchedArticles: Data[] = [];
+    newSelected.forEach(itemCode => {
+      const foundItem = articlesData.find(article => article.itemCode === itemCode);
+      if(foundItem) {
+        matchedArticles.push(foundItem);
+      }
+    })
+    setSelectedArticles(matchedArticles)
     setSelected(newSelected);
   };
 
@@ -374,15 +394,15 @@ export default function InventoryTable() {
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - articlesData.length) : 0;
 
-  const visibleRows = React.useMemo(
+  const visibleRows = useMemo(
     () =>
-      stableSort(rows, getComparator(order, orderBy)).slice(
+      stableSort(articlesData, getComparator(order, orderBy)).slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage,
       ),
-    [order, orderBy, page, rowsPerPage],
+    [articlesData, order, orderBy, page, rowsPerPage],
   );
 
   return (
@@ -391,10 +411,15 @@ export default function InventoryTable() {
         <ArticleDg 
           openArticleDg={openArticleDg} 
           setOpenArticleDg={setOpenArticleDg}
-          isEditAction={false}
-          article={{} as Article}
+          isEditAction={true}
+          article={article}
         />
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar 
+          numSelected={selected.length} 
+          setArticle={setArticle}
+          setOpenArticle={setOpenArticleDg}
+          selectedArticles={selectedArticles || []}
+        />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -406,7 +431,7 @@ export default function InventoryTable() {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={articlesData.length}
             />
             <TableBody>
               {visibleRows.map((row, index) => {
@@ -472,7 +497,7 @@ export default function InventoryTable() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={rows.length}
+          count={articlesData.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

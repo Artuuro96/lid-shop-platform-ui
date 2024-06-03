@@ -3,6 +3,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Router from './routes'
 import { BrowserRouter } from 'react-router-dom'
 import palette from './pallete'
+import AlertDialogSlide from './components/common/AlertDialogSlide'
+import { DialogAlertContextProvider } from './context/DialogAlertContext'
 
 function App() {
   const theme = createTheme({
@@ -14,9 +16,12 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <Router />
-      </BrowserRouter>
+      <DialogAlertContextProvider>
+        <AlertDialogSlide />
+        <BrowserRouter>
+          <Router />
+        </BrowserRouter>
+      </DialogAlertContextProvider>
     </ThemeProvider>
   )
 }

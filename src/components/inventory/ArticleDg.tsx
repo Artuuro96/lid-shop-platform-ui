@@ -1,11 +1,11 @@
-import { SetStateAction, Fragment, Dispatch, useState, ChangeEvent } from 'react';
+import { SetStateAction, Fragment, Dispatch, useState, useEffect, ChangeEvent } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Autocomplete, Grid, InputAdornment, TextField } from '@mui/material';
-import { Article } from '../../interfaces/article.interface';
+import { Article, Data } from '../../interfaces/article.interface';
 
 export default function ArticleDg({
   openArticleDg,
@@ -16,18 +16,35 @@ export default function ArticleDg({
   openArticleDg: boolean,
   setOpenArticleDg: Dispatch<SetStateAction<boolean>>,
   isEditAction: boolean,
-  article: Article,
+  article: Data,
 }) {
   const [newArticle, setNewArticle] = useState<Article>(article);
+
+  useEffect(() => {
+    setNewArticle(article);
+  }, [article]);
+
   const onSaveNewArticle = (): void => {
     console.log("=====>", newArticle);
-    setOpenArticleDg(false)
+    setOpenArticleDg(false);
   }
 
   const onEditNewArticle = (): void => {
     console.log("=====>", newArticle);
-    setOpenArticleDg(false)
+    setOpenArticleDg(false);
   }
+
+  const handleInputChange = (key: keyof Article, value: string | number) => {
+    setNewArticle((prevArticle) => ({
+      ...prevArticle,
+      [key]: value
+    }));
+  }
+
+  const handleNumberInputChange = (key: keyof Article, value: string) => {
+    handleInputChange(key, parseFloat(value) || 0);
+  }
+
   return (
     <Fragment>
       <Dialog
@@ -50,10 +67,7 @@ export default function ArticleDg({
                 color="secondary"
                 fullWidth
                 value={newArticle?.itemCode || ''}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => setNewArticle({
-                  ...newArticle,
-                  itemCode: event.target.value || ''
-                })}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleInputChange('itemCode', event.target.value)}
               />
             </Grid>
             <Grid item xs={6}>
@@ -64,10 +78,7 @@ export default function ArticleDg({
                 color="secondary"
                 fullWidth
                 value={newArticle?.item || ''}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => setNewArticle({
-                  ...newArticle,
-                  item: event.target.value
-                })}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleInputChange('item', event.target.value)}
               />
             </Grid>
             <Grid item xs={3}>
@@ -75,16 +86,11 @@ export default function ArticleDg({
                 id="brand"
                 freeSolo
                 color='secondary'
-                options={['Tommy Hilfilgher', 'Nike', 'Victoria Secret']}
+                options={['Tommy Hilfiger', 'Nike', 'Victoria Secret']}
                 fullWidth
                 renderInput={(params) => <TextField {...params} color="secondary" label="Marca" />}
                 value={newArticle?.brand || ''}
-                onChange={(_event, value) => {
-                  setNewArticle({
-                    ...newArticle,
-                    brand: value || ''
-                  })
-                }}
+                onChange={(_event, value) => handleInputChange('brand', value || '')}
               />
             </Grid>
             <Grid item xs={3}>
@@ -99,10 +105,7 @@ export default function ArticleDg({
                   endAdornment: <InputAdornment position="start">USD</InputAdornment>,
                 }}
                 value={newArticle?.ticketPrice || 0}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => setNewArticle({
-                  ...newArticle,
-                  ticketPrice: parseFloat(event.target.value)
-                })}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleNumberInputChange('ticketPrice', event.target.value)}
               />
             </Grid>
             <Grid item xs={3}>
@@ -117,10 +120,7 @@ export default function ArticleDg({
                   endAdornment: <InputAdornment position="start">USD</InputAdornment>,
                 }}
                 value={newArticle?.tax || 0}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => setNewArticle({
-                  ...newArticle,
-                  tax: parseFloat(event.target.value)
-                })}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleNumberInputChange('tax', event.target.value)}
               />
             </Grid>
             <Grid item xs={3}>
@@ -135,10 +135,7 @@ export default function ArticleDg({
                   endAdornment: <InputAdornment position="start">USD</InputAdornment>,
                 }}
                 value={newArticle?.parcel || 0}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => setNewArticle({
-                  ...newArticle,
-                  parcel: parseFloat(event.target.value)
-                })}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleNumberInputChange('parcel', event.target.value)}
               />
             </Grid>
             <Grid item xs={3}>
@@ -153,19 +150,16 @@ export default function ArticleDg({
                   endAdornment: <InputAdornment position="start">MXN</InputAdornment>,
                 }}
                 value={newArticle?.lidShopPrice || 0}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => setNewArticle({
-                  ...newArticle,
-                  lidShopPrice: parseFloat(event.target.value)
-                })}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleNumberInputChange('lidShopPrice', event.target.value)}
               />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={() => setOpenArticleDg(false)}>
+          <Button onClick={() => setOpenArticleDg(false)}>
             Cerrar
           </Button>
-          <Button onClick={() => isEditAction ? onEditNewArticle() : onSaveNewArticle()} autoFocus>
+          <Button onClick={() => isEditAction ? onEditNewArticle() : onSaveNewArticle()}>
             {isEditAction ? 'Editar' : 'Guardar'}
           </Button>
         </DialogActions>
