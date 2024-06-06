@@ -319,7 +319,7 @@ export default function InventoryTable({ articlesData }:{
   const [selected, setSelected] = useState<readonly string[]>([]);
   const [selectedArticles, setSelectedArticles] = useState<Data[]>()
   const [openArticleDg, setOpenArticleDg] = useState<boolean>(false);
-  const [article, setArticle] = useState<Data>({itemCode: 'HOLA'} as Data)
+  const [article, setArticle] = useState<Data>({} as Data)
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -407,7 +407,12 @@ export default function InventoryTable({ articlesData }:{
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }}>
+      <Paper sx={{ 
+        width: '100%', 
+        mb: 2, 
+        border: (theme) => `2px solid ${theme.palette.primary.main}`,
+        boxShadow: (theme) => `6px 6px 0px ${theme.palette.primary.main}`,
+      }}>
         <ArticleDg 
           openArticleDg={openArticleDg} 
           setOpenArticleDg={setOpenArticleDg}

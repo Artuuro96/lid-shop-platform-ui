@@ -1,11 +1,32 @@
-import { SetStateAction, Fragment, Dispatch, useState, useEffect, ChangeEvent } from 'react';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import { Autocomplete, Grid, InputAdornment, TextField } from '@mui/material';
-import { Article, Data } from '../../interfaces/article.interface';
+import React, { 
+  SetStateAction, 
+  Fragment, 
+  Dispatch, 
+  useState, 
+  useEffect, 
+  ChangeEvent 
+} from 'react';
+import { 
+  Grid,
+  InputAdornment,
+  TextField,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+  Dialog,
+  FilterOptionsState,
+} from '@mui/material';
+import Autocomplete, { 
+  createFilterOptions 
+} from '@mui/material/Autocomplete';
+import { 
+  Article, 
+  Data 
+} from '../../interfaces/article.interface';
+import { Brand } from '../../interfaces/brand.interface';
+import ImageUploadArea from './DragUploadImg';
+import BrandDg from './BrandDg';
 
 export default function ArticleDg({
   openArticleDg,
@@ -17,8 +38,24 @@ export default function ArticleDg({
   setOpenArticleDg: Dispatch<SetStateAction<boolean>>,
   isEditAction: boolean,
   article: Data,
-}) {
+}): JSX.Element {
+  const [brands] = useState<Brand[]>([
+    {
+      _id: '0',
+      name:'Tommy Hilfiger',
+    }, {
+      _id: '1',
+      name: 'Nike',
+    }, {
+      _id: '2',
+      name: 'Victoria Secret',
+    }
+  ]);
   const [newArticle, setNewArticle] = useState<Article>(article);
+  const [value, setValue] = useState<Brand | null>(null);
+  const [openBrandDg, setOpenBrandDg] = useState<boolean>(false);
+  const [newBrand, setNewBrand] = useState<string>('');
+  const filter = createFilterOptions<Brand>();
 
   useEffect(() => {
     setNewArticle(article);
@@ -42,6 +79,59 @@ export default function ArticleDg({
   const handleNumberInputChange = (key: keyof Article, value: string) => {
     handleInputChange(key, parseFloat(value) || 0);
   }
+
+  const onFilterOptions = (options: Brand[], params: FilterOptionsState<Brand>): Brand[] => {
+    const filtered = filter(options, params);
+    const { inputValue } = params;
+    const isExisting = options.some((option) => inputValue === option.name);
+    if (inputValue !== '' && !isExisting) {
+      filtered.push({
+        inputValue,
+        name: `Añadir "${inputValue}"`,
+      });
+    }
+    return filtered;
+  }
+
+  const onAddNewBrand = (option: string) => {
+    const brandQuotes = Array.from(option.split(' ')[1])
+    const brand = brandQuotes.slice(1, brandQuotes.length-1).join("");
+    setNewBrand(brand);
+    setOpenBrandDg(true);
+
+  }
+
+  const getOptionLabel = (option: string | Brand): string => {
+    if (typeof option === 'string') {
+      return option;
+    }
+    if (option.inputValue) {
+      return option.inputValue;
+    }
+    return option.name;
+  }
+
+  const onRenderOption = (props: React.HTMLAttributes<HTMLLIElement>, option: Brand) => {
+    if(option.name.includes('Añadir')) {
+      return (
+        <div style={{ margin: '0px 10px 0px 10px'}} key={option.name + 'option'}>
+          <Button 
+            size='small'
+            variant='contained'
+            color='primary'
+            fullWidth
+            sx={{color: 'white'}}
+            onClick={() => onAddNewBrand(option.name)}
+          >
+            {option.name}
+          </Button>
+        </div>
+      )
+    }
+  
+    return <li {...props} key={option.name + 'option'}>{option.name}</li>
+  }
+ 
 
   return (
     <Fragment>
@@ -80,16 +170,31 @@ export default function ArticleDg({
               />
             </Grid>
             <Grid item xs={3}>
-              <Autocomplete
-                id="brand"
-                freeSolo
-                color='secondary'
-                options={['Tommy Hilfiger', 'Nike', 'Victoria Secret']}
-                fullWidth
-                renderInput={(params) => <TextField {...params} color="secondary" label="Marca" />}
-                value={newArticle?.brand || ''}
-                onChange={(_event, value) => handleInputChange('brand', value || '')}
-              />
+            <Autocomplete
+              value={value}
+              onChange={(_event, newValue) => {
+                if (typeof newValue === 'string') {
+                  handleInputChange('item', newValue);
+                } else if (newValue && newValue.inputValue) {
+                  handleInputChange('item', newValue.inputValue);
+                } else {
+                  setValue(newValue);
+                }
+              }}
+              filterOptions={onFilterOptions}
+              selectOnFocus
+              clearOnBlur
+              handleHomeEndKeys
+              id="free-solo-with-text-demo"
+              options={brands}
+              getOptionLabel={getOptionLabel}
+              renderOption={onRenderOption}
+              fullWidth
+              freeSolo
+              renderInput={(params) => (
+                <TextField {...params} label="Marca" />
+              )}
+            />
             </Grid>
             <Grid item xs={3}>
               <TextField 
@@ -151,17 +256,23 @@ export default function ArticleDg({
                 onChange={(event: ChangeEvent<HTMLInputElement>) => handleNumberInputChange('lidShopPrice', event.target.value)}
               />
             </Grid>
+            <Grid item xs={2}/>
+            <Grid item xs={8}>
+              <ImageUploadArea />
+            </Grid>
+            <Grid item xs={2}/>
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenArticleDg(false)}>
+          <Button onClick={() => setOpenArticleDg(false)} color='error'>
             Cerrar
           </Button>
-          <Button onClick={() => isEditAction ? onEditNewArticle() : onSaveNewArticle()}>
+          <Button onClick={() => isEditAction ? onEditNewArticle() : onSaveNewArticle()} color='success'>
             {isEditAction ? 'Editar' : 'Guardar'}
           </Button>
         </DialogActions>
       </Dialog>
+      <BrandDg openDg={openBrandDg} setOpenDg={setOpenBrandDg} brand={newBrand}/>
     </Fragment>
   );
 }

@@ -120,9 +120,9 @@ export default function SaleDg({
               variant='outlined'
               color='inherit'
               sx={{
-                color: 'white',
-                border: (theme) => `2px solid ${theme.palette.background.default}`,
-                boxShadow: (theme) => `4px 4px 0px ${theme.palette.background.default}`
+                color: (theme) => `${theme.palette.common.white}`,
+                border: (theme) => `2px solid ${theme.palette.common.white}`,
+                boxShadow: (theme) => `4px 4px 0px ${theme.palette.common.white}`
               }}
             >
               Guardar
