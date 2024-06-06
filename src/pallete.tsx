@@ -18,7 +18,7 @@ const SECONDARY = {
 const INFO = {
   lighter: '#ac4e78',
   light: '#951b51',
-  main: '#89023E',
+  main: '#00b4d8',
   dark: '#7b0238',
   darker: '#60012b',
 };

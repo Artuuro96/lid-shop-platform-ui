@@ -25,12 +25,10 @@ export default function ArticleDg({
   }, [article]);
 
   const onSaveNewArticle = (): void => {
-    console.log("=====>", newArticle);
     setOpenArticleDg(false);
   }
 
   const onEditNewArticle = (): void => {
-    console.log("=====>", newArticle);
     setOpenArticleDg(false);
   }
 

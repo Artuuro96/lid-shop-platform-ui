@@ -1,11 +1,13 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useTitleContext } from "../../context/TitleContext"
 import { getTitle } from "../../utils/get-url-path";
-import { Button, Grid, TextField, styled } from "@mui/material";
+import { Divider, Grid, IconButton, InputBase, Paper, styled } from "@mui/material";
 import InventoryTable from "./InventoryTable";
 import ArticleDg from "./ArticleDg";
 import { Article, Data } from "../../interfaces/article.interface";
 import { StatusEnum } from "../../enum/status.enum";
+import LidButton from "../common/LidButton";
+import SearchIcon from '@mui/icons-material/Search';
 
 function createData(
   itemCode: string,
@@ -96,51 +98,71 @@ export default function Inventory() {
         isEditAction={false}
         article={{} as Data}
       />
-      <Grid container spacing={2} paddingBottom={1}>
+      <Grid container spacing={2} paddingBottom={2}>
         <Grid item xs={4}>
-          <TextField 
-            id="search-article-input" 
-            label="Buscar Articulo(s)" 
-            size="small" 
-            variant="outlined" 
-            onChange={onSearchArticle}
-            fullWidth />
+          <Paper
+          component="form"
+          sx={{ 
+            p: '2px 4px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            border: (theme) => `2px solid ${theme.palette.secondary.main}`,
+            boxShadow: (theme) => `6px 6px 0px ${theme.palette.secondary.main}`,
+            height: 48,
+            flex: '0 0 auto',
+          }}
+          >
+            <InputBase
+              sx={{ ml: 1, flex: 1 }}
+              placeholder="Buscar Venta"
+              color='secondary'
+              onChange={onSearchArticle}
+              inputProps={{ 'aria-label': 'search article' }}
+            />
+            <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+            <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+              <SearchIcon />
+            </IconButton>
+          </Paper>
         </Grid>
         <Grid item xs={4.5}/>
         <Grid item xs={1}>
-          <Button
+          <LidButton
             component="label"
+            varianttype="secondary"
             role={undefined}
-            variant="outlined"
-            color="secondary"
             tabIndex={-1}
             fullWidth
+            sx={{
+              height: 48
+            }}
           >
             Importar
             <VisuallyHiddenInput type="file" />
-          </Button>
+          </LidButton>
         </Grid>
         <Grid item xs={1}>
-          <Button 
-            variant="outlined"
-            color="secondary" 
-            fullWidth
+          <LidButton 
+            varianttype="secondary"
+            sx={{
+              height: 48
+            }}
           >
             Exportar
-          </Button>
+          </LidButton>
         </Grid>
         <Grid item xs={1.5}>
-          <Button 
-            variant="contained" 
+          <LidButton 
+            varianttype="secondary"
             fullWidth
             color="secondary"
             onClick={() => setOpenArticleDg(true)}
             sx={{
-              color: 'white',
+              height: 48
             }}
           >
             Nuevo Articulo
-          </Button>
+          </LidButton>
         </Grid>
       </Grid>
       <InventoryTable articlesData={articlesData}/>

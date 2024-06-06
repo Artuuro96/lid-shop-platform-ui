@@ -6,7 +6,7 @@ import Sales from './components/sales/Sales.tsx';
 import Clients from './components/clients/Clients.tsx';
 import Inventory from './components/inventory/Inventory.tsx';
 import { TitleContextProvider } from './context/TitleContext.tsx';
-import { getUrlPath } from './utils/get-url-path.tsx';
+import { getUrlPath } from './utils/get-url-path.ts';
 
 export default function Router(): ReactNode {
   const routes: RouteObject[] = [

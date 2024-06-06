@@ -53,8 +53,8 @@ export default function AlertDialogSlide() {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Disagree</Button>
-          <Button onClick={handleClose}>Agree</Button>
+          <Button onClick={handleClose} color='error'>Cancelar</Button>
+          <Button onClick={handleClose} color='info'>Aceptar</Button>
         </DialogActions>
       </Dialog>
     </Grid >
