@@ -36,7 +36,8 @@ export default function SaleDetailDrawer({
   const DrawerList = (
     <Box sx={{ width: 600, marginTop: 7, padding: 3 }} role="presentation" onClick={toggleDrawer(false)}>
       <Card sx={{
-        border: `1.5px solid black`,
+        border: (theme) => `2px solid ${theme.palette.secondary.main}`,
+        boxShadow: (theme) => `6px 6px 0px ${theme.palette.secondary.main}`,
         marginBottom: 2
       }}>
         <CardContent>
@@ -106,7 +107,11 @@ export default function SaleDetailDrawer({
           </Grid>
         </CardContent>
       </Card>
-      <Card sx={{border: `1.5px solid black`,}}>
+      <Card sx={{
+        border: (theme) => `2px solid ${theme.palette.secondary.main}`,
+        boxShadow: (theme) => `6px 6px 0px ${theme.palette.secondary.main}`,
+        marginBottom: 2
+      }}>
         <CardContent>
           <Grid container spacing={0}>
             <Grid item xs={12}>

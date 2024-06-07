@@ -12,6 +12,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaleDg from "./SaleDg";
 import LidButton from "../common/LidButton";
 import SearchIcon from '@mui/icons-material/Search';
+import { useDialogAlertContext } from "../../context/DialogAlertContext";
 
 const rows: SaleDetail[] = [{
   saleId: 'V202401',
@@ -101,6 +102,7 @@ const VisuallyHiddenInput = styled('input')({
 
 export default function Sales(): JSX.Element {
   const {setTitle} = useTitleContext();
+  const {setDgAlert} = useDialogAlertContext();
   const [maxHeight, setMaxHeight] = useState<number>(0);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [selectedSale, setSelectedSale] = useState<SaleDetail>({} as SaleDetail);
@@ -133,6 +135,14 @@ export default function Sales(): JSX.Element {
 
   const onOpenSaleDg = () => {
     setOpenSaleDg(true);
+  }
+
+  const onDeleteSale = (saleId: string) => {
+    setDgAlert({
+      title: '¿Estas seguro?',
+      textContent: `La venta con ID ${saleId} será eliminada`,
+      open: true,
+    })
   }
 
   return (
@@ -311,7 +321,7 @@ export default function Sales(): JSX.Element {
                   <IconButton aria-label="edit">
                     <EditIcon />
                   </IconButton>
-                  <IconButton aria-label="delete">
+                  <IconButton aria-label="delete" onClick={() => onDeleteSale(row.saleId)}>
                     <DeleteIcon />
                   </IconButton>
                 </Grid>

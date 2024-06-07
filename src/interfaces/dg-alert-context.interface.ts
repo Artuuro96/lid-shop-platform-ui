@@ -1,6 +1,6 @@
 export interface DgAlert {
   open: boolean,
   title: string,
-  html: string,
+  html?: string,
   textContent: string
 }
