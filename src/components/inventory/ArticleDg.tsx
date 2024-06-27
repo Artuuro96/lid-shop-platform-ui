@@ -16,6 +16,11 @@ import {
   Button,
   Dialog,
   FilterOptionsState,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormControl,
+  SelectChangeEvent,
 } from '@mui/material';
 import Autocomplete, { 
   createFilterOptions 
@@ -27,6 +32,10 @@ import {
 import { Brand } from '../../interfaces/brand.interface';
 import ImageUploadArea from './DragUploadImg';
 import BrandDg from './BrandDg';
+import { useDispatch } from 'react-redux';
+import { postArticle } from '../../store/article.slice';
+import { useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../store/store';
 
 export default function ArticleDg({
   openArticleDg,
@@ -39,30 +48,26 @@ export default function ArticleDg({
   isEditAction: boolean,
   article: Data,
 }): JSX.Element {
-  const [brands] = useState<Brand[]>([
-    {
-      _id: '0',
-      name:'Tommy Hilfiger',
-    }, {
-      _id: '1',
-      name: 'Nike',
-    }, {
-      _id: '2',
-      name: 'Victoria Secret',
-    }
-  ]);
+  const dispatch = useDispatch<AppDispatch>();
+  const { data: brandsData } = useSelector((state: RootState) => state.brand);
   const [newArticle, setNewArticle] = useState<Article>(article);
   const [value, setValue] = useState<Brand | null>(null);
   const [openBrandDg, setOpenBrandDg] = useState<boolean>(false);
   const [newBrand, setNewBrand] = useState<string>('');
   const filter = createFilterOptions<Brand>();
+  const [brands, setBrands] = useState<Brand[]>(brandsData);
 
   useEffect(() => {
     setNewArticle(article);
   }, [article]);
 
+  useEffect(() => {
+    setBrands(brandsData)
+  }, [brandsData])
+
   const onSaveNewArticle = (): void => {
     setOpenArticleDg(false);
+    dispatch(postArticle(newArticle))
   }
 
   const onEditNewArticle = (): void => {
@@ -132,7 +137,6 @@ export default function ArticleDg({
     return <li {...props} key={option.name + 'option'}>{option.name}</li>
   }
  
-
   return (
     <Fragment>
       <Dialog
@@ -154,8 +158,8 @@ export default function ArticleDg({
                 variant="outlined" 
                 color="secondary"
                 fullWidth
-                value={newArticle?.itemCode || ''}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => handleInputChange('itemCode', event.target.value)}
+                value={newArticle?.code || ''}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleInputChange('code', event.target.value)}
               />
             </Grid>
             <Grid item xs={6}>
@@ -165,8 +169,8 @@ export default function ArticleDg({
                 variant="outlined" 
                 color="secondary"
                 fullWidth
-                value={newArticle?.item || ''}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => handleInputChange('item', event.target.value)}
+                value={newArticle?.name || ''}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleInputChange('name', event.target.value)}
               />
             </Grid>
             <Grid item xs={3}>
@@ -174,11 +178,12 @@ export default function ArticleDg({
               value={value}
               onChange={(_event, newValue) => {
                 if (typeof newValue === 'string') {
-                  handleInputChange('item', newValue);
+                  handleInputChange('name', newValue);
                 } else if (newValue && newValue.inputValue) {
-                  handleInputChange('item', newValue.inputValue);
+                  handleInputChange('name', newValue.inputValue);
                 } else {
-                  setValue(newValue);
+                  handleInputChange('brandId', newValue?._id || '');
+                  setValue(newValue)
                 }
               }}
               filterOptions={onFilterOptions}
@@ -243,6 +248,36 @@ export default function ArticleDg({
             </Grid>
             <Grid item xs={3}>
               <TextField 
+                id="otherCosts" 
+                label="Otros Costos" 
+                variant="outlined" 
+                color="secondary"
+                fullWidth
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  endAdornment: <InputAdornment position="start">USD</InputAdornment>,
+                }}
+                value={newArticle?.otherCosts || 0}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleNumberInputChange('otherCosts', event.target.value)}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField 
+                id="profit" 
+                label="Ganancia" 
+                variant="outlined" 
+                color="secondary"
+                fullWidth
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  endAdornment: <InputAdornment position="start">MXN</InputAdornment>,
+                }}
+                value={newArticle?.profit || 0}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleNumberInputChange('profit', event.target.value)}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField 
                 id="lidShopPrice" 
                 label="Precio Lid Shop" 
                 variant="outlined" 
@@ -255,6 +290,24 @@ export default function ArticleDg({
                 value={newArticle?.lidShopPrice || 0}
                 onChange={(event: ChangeEvent<HTMLInputElement>) => handleNumberInputChange('lidShopPrice', event.target.value)}
               />
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <InputLabel id="status">Estatus</InputLabel>
+                <Select
+                  labelId="demo-simple-select-autowidth-label"
+                  id="demo-simple-select-autowidth"
+                  fullWidth
+                  defaultValue='AVAILABLE'
+                  label="Estatus"
+                  value={newArticle.status || ''}
+                  onChange={(event: SelectChangeEvent<string>) => handleInputChange('status', event.target.value)}
+                >
+                  <MenuItem value={'AVAILABLE'}>DISPONIBLE</MenuItem>
+                  <MenuItem value={'RESERVED'}>APARTADO</MenuItem>
+                  <MenuItem value={'SOLD_OUT'}>VENDIDO</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={2}/>
             <Grid item xs={8}>
@@ -272,7 +325,7 @@ export default function ArticleDg({
           </Button>
         </DialogActions>
       </Dialog>
-      <BrandDg openDg={openBrandDg} setOpenDg={setOpenBrandDg} brand={newBrand}/>
+      <BrandDg openDg={openBrandDg} setOpenDg={setOpenBrandDg} brandName={newBrand}/>
     </Fragment>
   );
 }

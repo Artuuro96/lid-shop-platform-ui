@@ -25,49 +25,6 @@ import { Data } from '../../interfaces/article.interface';
 import { useState, Dispatch, SetStateAction, useMemo } from 'react';
 import { useDialogAlertContext } from '../../context/DialogAlertContext';
 
-/*function createData(
-  itemCode: string,
-  item: string,
-  ticketPrice: number,
-  tax: number,
-  brand: string,
-  parcel: number,
-  otherCosts: number,
-  lidShopPrice: number,
-  profit: number,
-  status: StatusEnum
-): Article {
-  return {
-    itemCode,
-    item,
-    ticketPrice,
-    tax,
-    brand,
-    parcel,
-    otherCosts,
-    lidShopPrice,
-    profit,
-    status,
-  };
-}
-
-const rows = [
-  createData('A202413', 'GUESS MOCHILA VERDE', 305, 3.7, 'GUESS', 67, 21.29, 1650, 729, StatusEnum.AVAILABLE),
-  createData('A202414', 'STEVE NEGRA GRANDE CADENA', 452, 25.0, 'STEVE MADDEN', 51, 21.29, 1300, 450, StatusEnum.AVAILABLE),
-  createData('A202415', 'MK MOCHILA', 262, 16.0, 'GUESS', 24, 21.29, 2100, 210, StatusEnum.AVAILABLE),
-  createData('A202416', 'MK CAFÉ', 159, 6.0, 'GUESS', 24, 21.29, 2200, 400, StatusEnum.AVAILABLE),
-  createData('A202417', 'STEVE BLANCA', 356, 16.0, 'GUESS', 49, 21.29, 7690, 800, StatusEnum.AVAILABLE),
-  createData('A202418', 'STEVE AZUL CIELO', 408, 3.2, 'GUESS', 87, 21.29, 5320, 100, StatusEnum.AVAILABLE),
-  createData('A202419', 'BOLSA BLANCA COACH', 237, 9.0, 'COACH', 37, 21.29, 5403, 320, StatusEnum.AVAILABLE),
-  createData('A202420', 'MUÑEQUERA COACH BEIGE', 375, 0.0, 'GUESS', 94, 21.29, 3980, 801, StatusEnum.AVAILABLE),
-  createData('A202421', 'KP CARTERA NEGRA', 518, 26.0, 'KIPLING', 65, 21.29, 361, 540, StatusEnum.AVAILABLE),
-  createData('A202422', 'LOCIÓN LOVE SPELL CASHMERE', 392, 0.2, 'LOVE', 98, 21.29, 985, 1100, StatusEnum.AVAILABLE),
-  createData('A202423', 'CREMA LOVE SPELL', 318, 0, 'GUESS', 81, 21.29, 3500, 980, StatusEnum.AVAILABLE),
-  createData('A202424', 'LOCIÓN LOVE SPELL', 360, 19.0, 'GUESS', 9, 21.29, 1300, 430, StatusEnum.AVAILABLE),
-  createData('A202425', 'LOCIÓN LOVE SPELL', 437, 18.0, 'GUESS', 63, 21.29, 2480, 1750, StatusEnum.AVAILABLE),
-];*/
-
-
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -118,13 +75,13 @@ interface HeadCell {
 
 const headCells: readonly HeadCell[] = [
   {
-    id: 'itemCode',
+    id: 'code',
     numeric: false,
     disablePadding: true,
     label: 'Código Item',
   },
   {
-    id: 'item',
+    id: 'name',
     numeric: true,
     disablePadding: false,
     label: 'Item',
@@ -246,7 +203,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
   }
 
   const onDeleteItems = () => {
-    const message = selectedArticles.map(article => `<li>${article.itemCode}</li>`)
+    const message = selectedArticles.map(article => `<li>${article.code}</li>`);
     setDgAlert({
       title: '¿Estas seguro?',
       textContent: `Lo siguientes elementos serán eliminados`,
@@ -334,7 +291,7 @@ export default function InventoryTable({ articlesData }:{
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelected = articlesData.map((article) => article.itemCode);
+      const newSelected = articlesData.map((article) => article.code);
       setSelectedArticles(articlesData);
       setSelected(newSelected);
       return;
@@ -372,7 +329,7 @@ export default function InventoryTable({ articlesData }:{
     }
     const matchedArticles: Data[] = [];
     newSelected.forEach(itemCode => {
-      const foundItem = articlesData.find(article => article.itemCode === itemCode);
+      const foundItem = articlesData.find(article => article.code === itemCode);
       if(foundItem) {
         matchedArticles.push(foundItem);
       }
@@ -440,17 +397,17 @@ export default function InventoryTable({ articlesData }:{
             />
             <TableBody>
               {visibleRows.map((row, index) => {
-                const isItemSelected = isSelected(row.itemCode);
+                const isItemSelected = isSelected(row.code);
                 const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
                   <TableRow
                     hover
-                    onClick={(event) => handleClick(event, row.itemCode)}
+                    onClick={(event) => handleClick(event, row.code)}
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
-                    key={row.itemCode}
+                    key={row.code}
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >
@@ -469,9 +426,9 @@ export default function InventoryTable({ articlesData }:{
                       scope="row"
                       padding="none"
                     >
-                      {row.itemCode}
+                      {row.code}
                     </TableCell>
-                    <TableCell align="left">{row.item}</TableCell>
+                    <TableCell align="left">{row.name.toUpperCase()}</TableCell>
                     <TableCell align="left">{`$ ${row.ticketPrice}`}</TableCell>
                     <TableCell align="left">{`$ ${row.tax}`}</TableCell>
                     <TableCell align="left">{`$ ${row.parcel}`}</TableCell>

@@ -1,5 +1,5 @@
 export enum StatusEnum {
-  RESERVED = 'APARTADO',
-  AVAILABLE = 'DISPONIBLE',
-  SOLD_OUT = 'LIQUIDADO',
-}
+  RESERVED = 'RESERVED',
+  AVAILABLE = 'AVAILABLE',
+  SOLD_OUT = 'SOLD_OUT',
+} 

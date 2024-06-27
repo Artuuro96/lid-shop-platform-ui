@@ -4,60 +4,22 @@ import { getTitle } from "../../utils/get-url-path";
 import { Divider, Grid, IconButton, InputBase, Paper, styled } from "@mui/material";
 import InventoryTable from "./InventoryTable";
 import ArticleDg from "./ArticleDg";
-import { Article, Data } from "../../interfaces/article.interface";
-import { StatusEnum } from "../../enum/status.enum";
+import { Data } from "../../interfaces/article.interface";
 import LidButton from "../common/LidButton";
 import SearchIcon from '@mui/icons-material/Search';
-
-function createData(
-  itemCode: string,
-  item: string,
-  ticketPrice: number,
-  tax: number,
-  brand: string,
-  parcel: number,
-  otherCosts: number,
-  lidShopPrice: number,
-  profit: number,
-  status: StatusEnum
-): Article {
-  return {
-    itemCode,
-    item,
-    ticketPrice,
-    tax,
-    brand,
-    parcel,
-    otherCosts,
-    lidShopPrice,
-    profit,
-    status,
-  };
-}
-
-const rows = [
-  createData('A202413', 'GUESS MOCHILA VERDE', 305, 3.7, 'GUESS', 67, 21.29, 1650, 729, StatusEnum.AVAILABLE),
-  createData('A202414', 'STEVE NEGRA GRANDE CADENA', 452, 25.0, 'STEVE MADDEN', 51, 21.29, 1300, 450, StatusEnum.AVAILABLE),
-  createData('A202415', 'MK MOCHILA', 262, 16.0, 'GUESS', 24, 21.29, 2100, 210, StatusEnum.AVAILABLE),
-  createData('A202416', 'MK CAFÉ', 159, 6.0, 'GUESS', 24, 21.29, 2200, 400, StatusEnum.AVAILABLE),
-  createData('A202417', 'STEVE BLANCA', 356, 16.0, 'GUESS', 49, 21.29, 7690, 800, StatusEnum.AVAILABLE),
-  createData('A202418', 'STEVE AZUL CIELO', 408, 3.2, 'GUESS', 87, 21.29, 5320, 100, StatusEnum.AVAILABLE),
-  createData('A202419', 'BOLSA BLANCA COACH', 237, 9.0, 'COACH', 37, 21.29, 5403, 320, StatusEnum.AVAILABLE),
-  createData('A202420', 'MUÑEQUERA COACH BEIGE', 375, 0.0, 'GUESS', 94, 21.29, 3980, 801, StatusEnum.AVAILABLE),
-  createData('A202421', 'KP CARTERA NEGRA', 518, 26.0, 'KIPLING', 65, 21.29, 361, 540, StatusEnum.AVAILABLE),
-  createData('A202422', 'LOCIÓN LOVE SPELL CASHMERE', 392, 0.2, 'LOVE', 98, 21.29, 985, 1100, StatusEnum.AVAILABLE),
-  createData('A202423', 'CREMA LOVE SPELL', 318, 0, 'GUESS', 81, 21.29, 3500, 980, StatusEnum.AVAILABLE),
-  createData('A202424', 'LOCIÓN LOVE SPELL', 360, 19.0, 'GUESS', 9, 21.29, 1300, 430, StatusEnum.AVAILABLE),
-  createData('A202425', 'LOCIÓN LOVE SPELL', 437, 18.0, 'GUESS', 63, 21.29, 2480, 1750, StatusEnum.AVAILABLE),
-]
-
+import { useDispatch, useSelector } from "react-redux";
+import { fetchArticles } from "../../store/article.slice";
+import { AppDispatch, RootState } from "../../store/store";
+import { fetchBrands } from "../../store/brand.slice";
 
 export default function Inventory() {
   const {setTitle} = useTitleContext();
+  const dispatch = useDispatch<AppDispatch>();
+  const { data } = useSelector((state: RootState) => state.article)
   const [maxHeight, setMaxHeight] = useState<number>(0);
   const [openArticleDg, setOpenArticleDg] = useState<boolean>(false);
-  const [articlesData, setArticlesData] = useState<Data[]>(rows);
-
+  const [articlesData, setArticlesData] = useState<Data[]>([]);
+  
   const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
     clipPath: 'inset(50%)',
@@ -71,10 +33,15 @@ export default function Inventory() {
   });
 
   const onSearchArticle = (event: ChangeEvent<HTMLInputElement>) => {
-    const results = rows.filter(row => {
-      return row.item.includes(event.target.value)
+    const results = data.filter(row => {
+      return row.name.includes(event.target.value)
     });
     setArticlesData(results);
+  }
+
+  const onNewArticle = () => {
+    setOpenArticleDg(true);
+    dispatch(fetchBrands());
   }
 
   useEffect(() => {
@@ -87,8 +54,13 @@ export default function Inventory() {
     handleResize();
 
     window.addEventListener('resize', handleResize);
+    dispatch(fetchArticles());
     return () => window.removeEventListener('resize', handleResize);
-  }, [setTitle]);
+  }, [dispatch, setTitle]);
+
+  useEffect(() => {
+    setArticlesData(data)
+  }, [data])
 
   return (
     <div style={{ height: maxHeight, width: '100%' }}>
@@ -156,7 +128,7 @@ export default function Inventory() {
             varianttype="secondary"
             fullWidth
             color="secondary"
-            onClick={() => setOpenArticleDg(true)}
+            onClick={onNewArticle}
             sx={{
               height: 48
             }}

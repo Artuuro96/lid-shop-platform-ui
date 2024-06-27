@@ -1,20 +1,42 @@
-import {SetStateAction, Fragment, Dispatch} from 'react';
+import {SetStateAction, Fragment, Dispatch, useState, ChangeEvent} from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Grid, TextField } from '@mui/material';
+import { Brand } from '../../interfaces/brand.interface';
+import { useDispatch } from 'react-redux';
+import { postBrand } from '../../store/brand.slice';
 
 export default function BrandDg({
   openDg,
   setOpenDg,
-  brand,
+  brandName,
 }: {
   openDg: boolean,
   setOpenDg: Dispatch<SetStateAction<boolean>>,
-  brand?: string
+  brandName?: string
 }) {
+  const dispatch = useDispatch();
+  const [newBrand, setNewBrand] = useState<Brand>({
+    name: brandName || '',
+    acronym: '',
+    description: ''
+  });
+
+  const onSaveBrand = () => {
+    dispatch(postBrand(newBrand));
+    setOpenDg(false);
+  }
+
+  const handleChangeInput = (key: keyof Brand, value: string) => {
+    setNewBrand((prevBrand) => ({
+      ...prevBrand,
+      [key]: value
+    }))
+  }
+
   return (
     <Fragment>
       <Dialog
@@ -27,19 +49,34 @@ export default function BrandDg({
         <DialogContent>
           <Grid container spacing={1} marginTop={1}>
             <Grid item xs={6}>
-              <TextField label="Nombre de Marca" value={brand || ''} fullWidth/>
+              <TextField 
+                label="Nombre de Marca" 
+                value={newBrand.name}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleChangeInput('name', event.target.value)}
+                fullWidth
+              />
             </Grid>
             <Grid item xs={6}>
-              <TextField label="Siglas" fullWidth/>
+              <TextField 
+                label="Siglas" 
+                value={newBrand.acronym}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleChangeInput('acronym', event.target.value)}
+                fullWidth
+              />
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Descripción" fullWidth/>
+              <TextField 
+                label="Descripción" 
+                value={newBrand.description}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => handleChangeInput('description', event.target.value)}
+                fullWidth
+              />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDg(false)} color="error">Cerrar</Button>
-          <Button onClick={() => {}} color="success">Guardar</Button>
+          <Button onClick={onSaveBrand} color="success">Guardar</Button>
         </DialogActions>
       </Dialog>
     </Fragment>

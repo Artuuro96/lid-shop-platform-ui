@@ -1,8 +1,8 @@
 import { StatusEnum } from "../enum/status.enum";
 
 export interface Article {
-  itemCode: string;
-  item: string;
+  code: string;
+  name: string;
   ticketPrice: number;
   tax: number;
   parcel: number;
@@ -10,12 +10,12 @@ export interface Article {
   profit: number;
   lidShopPrice: number;
   status: StatusEnum;
-  brand: string;
+  brandId: string;
 }
 
 export interface Data {
-  itemCode: string;
-  item: string;
+  code: string;
+  name: string;
   ticketPrice: number;
   tax: number;
   parcel: number;
@@ -23,5 +23,5 @@ export interface Data {
   profit: number;
   lidShopPrice: number;
   status: StatusEnum;
-  brand: string;
+  brandId: string;
 }
