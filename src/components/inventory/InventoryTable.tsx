@@ -24,6 +24,8 @@ import ArticleDg from './ArticleDg';
 import { Data } from '../../interfaces/article.interface';
 import { useState, Dispatch, SetStateAction, useMemo } from 'react';
 import { useDialogAlertContext } from '../../context/DialogAlertContext';
+import { useDispatch } from 'react-redux';
+import { deleteArticlesById } from '../../store/article.slice';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -194,6 +196,7 @@ interface EnhancedTableToolbarProps {
 }
 
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
+  const dispatch = useDispatch();
   const { numSelected, setOpenArticle, setArticle, selectedArticles } = props;
   const { setDgAlert } = useDialogAlertContext();
 
@@ -209,7 +212,16 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       textContent: `Lo siguientes elementos serán eliminados`,
       html: `<ul>${message.join(' ')}</ul>`,
       open: true,
-    })
+      onContinue: () => {
+        dispatch(deleteArticlesById(selectedArticles.map(article => article._id)))
+        setDgAlert({
+          open: false,
+          textContent: '',
+          title: '',
+          onContinue: () => {}
+        });
+      }
+    });
   }
 
   return (

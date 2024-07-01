@@ -10,6 +10,7 @@ const DialogAlertContextProvider: React.FC<{ children: ReactNode }> = ({ childre
     textContent: '',
     html: '',
     open: false,
+    onContinue: () => {}
   });
   return <DialogAlertContext.Provider value={{ dgAlert, setDgAlert }}>
     {children}

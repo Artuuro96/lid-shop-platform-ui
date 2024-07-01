@@ -54,7 +54,7 @@ export default function AlertDialogSlide() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color='error'>Cancelar</Button>
-          <Button onClick={() => dgAlert.onConfirm()} color='info'>Aceptar</Button>
+          <Button onClick={() => dgAlert.onContinue()} color='info'>Aceptar</Button>
         </DialogActions>
       </Dialog>
     </Grid >
