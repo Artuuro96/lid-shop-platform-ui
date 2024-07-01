@@ -1,6 +1,7 @@
 import { StatusEnum } from "../enum/status.enum";
 
 export interface Article {
+  _id: string;
   code: string;
   name: string;
   ticketPrice: number;
@@ -13,7 +14,12 @@ export interface Article {
   brandId: string;
 }
 
+export interface DeletedArticleIds {
+  deletedIds: string[];
+}
+
 export interface Data {
+  _id: string;
   code: string;
   name: string;
   ticketPrice: number;

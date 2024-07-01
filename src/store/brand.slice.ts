@@ -2,6 +2,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { InitialState } from '../interfaces/inital-state.interface';
 import { Brand } from '../interfaces/brand.interface';
+import { token } from '../utils/token';
 
 const initialState: InitialState<Brand[]> = {
   data: [],
@@ -53,7 +54,7 @@ export const fetchBrands = () => ({
     url: 'http://localhost:8000/brands',
     method: 'GET',
     headers: {
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDU0NWZiMi1iODhjLTQ1ZDMtYjBkOS1iMTgzZGNiOTBhNTciLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtZSI6InN5c3RlbSIsImxhc3ROYW1lIjoiYWNtYSIsInNlY29uZExhc3ROYW1lIjoidXNlciIsImVtYWlsIjoiYXJ0dXJvcm9kcjk2QGdtYWlsLmNvbSIsInJvbGVzIjpbXSwibW9kdWxlcyI6W10sImlhdCI6MTcxOTQ1Nzc3MiwiZXhwIjoxNzE5NDYxMzcyfQ.fRn1r-0OmhA5_9hYOGX_0cZVjF4colEERBe3WBUmym8',
+      Authorization: 'Bearer ' + token,
     },
     onSuccess: fetchBrandsSuccess.type,
     onStart: fetchBrandsStart.type,
@@ -68,7 +69,7 @@ export const postBrand = (brand: Brand) => ({
     method: 'POST',
     data: brand,
     headers: {
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDU0NWZiMi1iODhjLTQ1ZDMtYjBkOS1iMTgzZGNiOTBhNTciLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtZSI6InN5c3RlbSIsImxhc3ROYW1lIjoiYWNtYSIsInNlY29uZExhc3ROYW1lIjoidXNlciIsImVtYWlsIjoiYXJ0dXJvcm9kcjk2QGdtYWlsLmNvbSIsInJvbGVzIjpbXSwibW9kdWxlcyI6W10sImlhdCI6MTcxOTQ1Nzc3MiwiZXhwIjoxNzE5NDYxMzcyfQ.fRn1r-0OmhA5_9hYOGX_0cZVjF4colEERBe3WBUmym8',
+      Authorization: 'Bearer ' + token,
     },
     onSuccess: postBrandSuccess.type,
     onStart: postBrandStart.type,
