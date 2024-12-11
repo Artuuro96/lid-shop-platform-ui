@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react"
-import { SaleDetail } from "../sale.interface"
+import { SaleDetail } from "../sale-detail.interface"
 
 export interface SaleDetailDrawerProps {
   openDrawer: boolean

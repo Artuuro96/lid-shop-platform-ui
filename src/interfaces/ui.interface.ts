@@ -6,4 +6,5 @@ export interface AlertUI {
   type: string;
   open: boolean;
   message: string;
+  path?: string;
 }

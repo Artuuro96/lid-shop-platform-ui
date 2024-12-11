@@ -1,7 +1,7 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useTitleContext } from "../../context/TitleContext"
 import { getTitle } from "../../utils/get-url-path";
-import { Divider, Grid, IconButton, InputBase, Paper, styled } from "@mui/material";
+import { Backdrop, CircularProgress, Divider, Grid, IconButton, InputBase, Paper, styled } from "@mui/material";
 import InventoryTable from "./InventoryTable";
 import ArticleDg from "./ArticleDg";
 import { Data } from "../../interfaces/article.interface";
@@ -15,7 +15,7 @@ import { fetchBrands } from "../../store/brand.slice";
 export default function Inventory() {
   const {setTitle} = useTitleContext();
   const dispatch = useDispatch<AppDispatch>();
-  const { data } = useSelector((state: RootState) => state.article)
+  const { data, loading } = useSelector((state: RootState) => state.article);
   const [maxHeight, setMaxHeight] = useState<number>(0);
   const [openArticleDg, setOpenArticleDg] = useState<boolean>(false);
   const [articlesData, setArticlesData] = useState<Data[]>([]);
@@ -64,6 +64,12 @@ export default function Inventory() {
 
   return (
     <div style={{ height: maxHeight, width: '100%' }}>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <ArticleDg 
         openArticleDg={openArticleDg} 
         setOpenArticleDg={setOpenArticleDg}

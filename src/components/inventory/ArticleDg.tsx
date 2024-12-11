@@ -49,7 +49,7 @@ export default function ArticleDg({
   article: Data,
 }): JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
-  const { data: brandsData } = useSelector((state: RootState) => state.brand);
+  const { data: brandsData } = useSelector((state: RootState) => state.brands);
   const [newArticle, setNewArticle] = useState<Article>(article);
   const [value, setValue] = useState<Brand | null>(null);
   const [openBrandDg, setOpenBrandDg] = useState<boolean>(false);
@@ -63,7 +63,7 @@ export default function ArticleDg({
 
   useEffect(() => {
     setBrands(brandsData)
-  }, [brandsData])
+  }, [brandsData]);
 
   const onSaveNewArticle = (): void => {
     setOpenArticleDg(false);

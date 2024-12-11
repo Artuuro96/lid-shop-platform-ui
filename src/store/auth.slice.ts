@@ -1,9 +1,13 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { InitialState } from "../interfaces/inital-state.interface";
 import { Auth } from "../interfaces/auth.interface";
+import { AuthVerified } from "../interfaces/auth-verfied.interface";
+import { setTokenCredentials } from "../utils/token";
 
 const initialState: InitialState<Auth> = {
-  data: {} as Auth,
+  data: {
+    isAuthenticated: localStorage.getItem('isAuth') || false,
+  } as Auth,
   error: null,
   loading: false,
 }
@@ -17,13 +21,34 @@ export const authSlice = createSlice({
     },
     authUserSuccess(state, action: PayloadAction<Auth>) {
       state.loading = false;
-      state.data = action.payload
+      state.data = action.payload;
+      const expirationTime = new Date().getTime() + action.payload.expires_in * 1000; 
+      const accessToken = action.payload.access_token;
+      setTokenCredentials(accessToken, expirationTime);
+      state.data.isAuthenticated = true;
     },
     authUserFailure(state, action: PayloadAction<string>) {
       state.loading = false;
       state.error = action.payload;
-    }
-
+      localStorage.clear();
+      state.data.isAuthenticated = false;
+    },
+    authVerifiedStart(state) {
+      state.loading = true;
+    },
+    authVerifiedSuccess(state, action: PayloadAction<AuthVerified>) {
+      state.loading = false;
+      if(!action.payload.active) {
+        
+        state.data.isAuthenticated = false;
+      }
+    },
+    authVerifiedFailure(state, action: PayloadAction<string>) {
+      localStorage.clear();
+      state.data.isAuthenticated = false;
+      state.error = action.payload;
+      state.loading = false;
+    },
   }
 });
 
@@ -31,18 +56,49 @@ export const {
   authUserStart,
   authUserFailure,
   authUserSuccess,
+  authVerifiedStart,
+  authVerifiedSuccess,
+  authVerifiedFailure,
 } = authSlice.actions;
 
-export const fetchArticles = () => ({
-  type: 'api/call',
+export const authenticateUser = (credentials: { username: string; password: string }) => ({
+  type: "api/call",
   payload: {
-    url: 'http://localhost:8000/articles',
-    method: 'GET',
+    url: "https://auth.lid-shop.com/realms/dp-lid-shop/protocol/openid-connect/token",
+    method: "POST",
     headers: {
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDU0NWZiMi1iODhjLTQ1ZDMtYjBkOS1iMTgzZGNiOTBhNTciLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtZSI6InN5c3RlbSIsImxhc3ROYW1lIjoiYWNtYSIsInNlY29uZExhc3ROYW1lIjoidXNlciIsImVtYWlsIjoiYXJ0dXJvcm9kcjk2QGdtYWlsLmNvbSIsInJvbGVzIjpbXSwibW9kdWxlcyI6W10sImlhdCI6MTcxOTQ2Mzg5MCwiZXhwIjoxNzE5NDY3NDkwfQ.Y7m1pO1IU3EQFeM4rZRzxF3T4m8tPIUIStweKV3wpcY',
+      "Content-Type": "application/x-www-form-urlencoded",
     },
+    data: new URLSearchParams({
+      grant_type: import.meta.env.VITE_GRANT_TYPE,
+      client_id: import.meta.env.VITE_CLIENT_ID,
+      username: credentials.username,
+      password: credentials.password,
+      client_secret: import.meta.env.VITE_CLIENT_SECRET,  // Este valor lo deberías manejar de forma más segura
+    }).toString(),
     onSuccess: authUserSuccess.type,
     onStart: authUserStart.type,
     onError: authUserFailure.type,
   },
 });
+
+export const verifyUser = (token: string) => ({
+  type: "api/call",
+  payload: {
+    url: "https://auth.lid-shop.com/realms/dp-lid-shop/protocol/openid-connect/token/introspect",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    data: new URLSearchParams({
+      client_id: import.meta.env.CLIENT_ID,
+      token,
+      client_secret: import.meta.env.CLIENT_SECRE,  
+    }).toString(),
+    onSuccess: authVerifiedSuccess.type,
+    onStart: authVerifiedStart.type,
+    onError: authVerifiedFailure.type,
+  }
+})
+
+export default authSlice.reducer;

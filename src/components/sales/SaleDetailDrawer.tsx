@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import { Card, CardContent, Divider, Grid, Table, TableBody, TableCell, TableHead, TableRow, Typography, styled, tableCellClasses } from '@mui/material';
-import { SaleDetail } from '../../interfaces/sale.interface';
+import { SaleDetail } from '../../interfaces/sale-detail.interface';
 import { formatDate } from '../../utils/date.util';
 import { SaleDetailDrawerProps } from '../../interfaces/props/sale-detail-drawer-props.interface';
 import { getChipForPaymentStatus, getChipForSaleStatus } from '../../utils/chip';

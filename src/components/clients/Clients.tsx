@@ -19,17 +19,23 @@ import SearchIcon from '@mui/icons-material/Search';
 import LidButton from "../common/LidButton";
 import ClientDetailDrawer from "./ClientDetailDrawer";
 import { ClientDetail } from "../../interfaces/client-detail.interface";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { useDispatch } from "react-redux";
+import { fetchClients } from "../../store/client.slice";
 
 export default function Clients(): JSX.Element {
-  const {setTitle} = useTitleContext();
+  const { setTitle } = useTitleContext();
+  const dispatch = useDispatch();
   const [openClientDrawer, setOpenClientDrawer] = useState<boolean>(false);
+  const { data, loading } = useSelector((state: RootState) => state.clients);
   const [selectedClient, setSelectedClient] = useState<ClientDetail>({} as ClientDetail);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const onSelectClient = (client: ClientDetail) => {
     setSelectedClient(client)
     setOpenClientDrawer(true);
   }
-  const clients = [
+  /*const clients = [
     {
       name: 'Alicia',
       lastName: 'Cervantes Herrera',
@@ -174,11 +180,12 @@ export default function Clients(): JSX.Element {
       address: 'Lomas de Guadalupe, Atizapan de Zaragoza',
       cellphone: '553338923',
     }
-  ]
+  ]*/
 
   useEffect(() => {
     setTitle(getTitle('clients'));
-  }, [setTitle]);
+    dispatch(fetchClients())
+  }, [dispatch, setTitle]);
   return (
     <Grid container spacing={2}>
       <Grid item xs={4}>
@@ -219,7 +226,7 @@ export default function Clients(): JSX.Element {
           Nuevo Cliente
         </LidButton>
       </Grid>
-      {clients.map((client, i) => {
+      {data.map((client, i) => {
         const intials = (client.name[0] + client.lastName[0]).toLocaleUpperCase();
         return (
           <Grid item xs={4} key={client.name + i}>
@@ -250,7 +257,7 @@ export default function Clients(): JSX.Element {
                 title={`${client.name} ${client.lastName}`}
                 subheader={client.email}
                 sx={{ cursor: "pointer" }}
-                onClick={() => onSelectClient(client)}
+                onClick={() => {}}//onSelectClient(client)}
               /> 
               <CardActions sx={{ justifyContent: 'flex-end' }}>
                 <IconButton aria-label="edit client">

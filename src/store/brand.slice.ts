@@ -1,8 +1,7 @@
-// slices/articleSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { InitialState } from '../interfaces/inital-state.interface';
 import { Brand } from '../interfaces/brand.interface';
-import { token } from '../utils/token';
+import { getToken } from '../utils/token';
 
 const initialState: InitialState<Brand[]> = {
   data: [],
@@ -54,7 +53,7 @@ export const fetchBrands = () => ({
     url: 'http://localhost:8000/brands',
     method: 'GET',
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: 'Bearer '  + getToken(),
     },
     onSuccess: fetchBrandsSuccess.type,
     onStart: fetchBrandsStart.type,
@@ -69,7 +68,7 @@ export const postBrand = (brand: Brand) => ({
     method: 'POST',
     data: brand,
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: 'Bearer '  + getToken(),
     },
     onSuccess: postBrandSuccess.type,
     onStart: postBrandStart.type,

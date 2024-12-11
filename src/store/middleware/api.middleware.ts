@@ -1,6 +1,7 @@
 import { Middleware } from "@reduxjs/toolkit";
 import axios from "axios";
-import { showAlert } from "../ui.slice";
+import { redirectTo, showAlert } from "../ui.slice";
+import { authVerifiedFailure } from "../auth.slice";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,23 +23,30 @@ export const apiMiddleware: Middleware = ({ dispatch }) => (next) => async (acti
       headers,
       url,
       method,
-      data,
+      data
     });
     dispatch({ type: onSuccess, payload: response.data });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    console.error(error.message)
     const { method, onSuccess } = action.payload
     dispatch({ 
       type: onError, 
       payload: { 
-        message: error.response.data.message,
-        code: error.response.data.statusCode,
+        message: error?.response?.data.message || error.message,
+        code: error?.response?.data.statusCode,
       }
     });
     dispatch(showAlert({
       message: `${method} ${onSuccess.split('/')[0]} failed: ${error.message || 'Something went wrong'}` ,
       open: true,
       type: 'error' 
-    }))
+    }));
+    if(error?.response?.data?.statusCode === 401) {
+      setTimeout(() => {
+        dispatch(authVerifiedFailure(''));
+        dispatch(redirectTo('/login'));
+      }, 2000)
+    }
   }
 }

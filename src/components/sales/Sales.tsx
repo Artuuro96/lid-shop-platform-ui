@@ -3,9 +3,8 @@ import { useTitleContext } from "../../context/TitleContext";
 import { getTitle } from "../../utils/get-url-path";
 import { Card, CardContent, Chip, Divider, Grid, IconButton, InputBase, Link, Paper, Typography, styled } from "@mui/material";
 import SaleDetailDrawer from "./SaleDetailDrawer";
-import { Data } from "../../interfaces/article.interface";
 import { formatDate } from "../../utils/date.util";
-import { SaleDetail } from "../../interfaces/sale.interface";
+import { SaleDetail } from "../../interfaces/sale-detail.interface";
 import { getChipForSaleStatus } from "../../utils/chip";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -13,6 +12,10 @@ import SaleDg from "./SaleDg";
 import LidButton from "../common/LidButton";
 import SearchIcon from '@mui/icons-material/Search';
 import { useDialogAlertContext } from "../../context/DialogAlertContext";
+import { Item } from "../../interfaces/item.interface";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store/store";
+import { fetchArticles } from "../../store/article.slice";
 
 const rows: SaleDetail[] = [{
   saleId: 'V202401',
@@ -37,7 +40,7 @@ const rows: SaleDetail[] = [{
       quantity: 200,
       createdAt: new Date('06/06/2024'),
       receivedBy: 'Daniela Martínez',
-      status: 'PENDING' 
+      status: 'PENDING'
     },
     {
       id: '908892',
@@ -59,7 +62,8 @@ const rows: SaleDetail[] = [{
       item: 'Cartera Coach',
       lidShopPrice: 2320,
     }
-  ] as Data[]
+  ] as Item[],
+  scheduledPayments: []
 }, {
   saleId: 'V202402',
   total: 1500.00,
@@ -85,7 +89,8 @@ const rows: SaleDetail[] = [{
       item: 'Tennis Tommy Hilfilgher',
       lidShopPrice: 2080
     }
-  ] as Data[]
+  ] as Item[],
+  scheduledPayments: []
 }];
 
 const VisuallyHiddenInput = styled('input')({
@@ -103,6 +108,7 @@ const VisuallyHiddenInput = styled('input')({
 export default function Sales(): JSX.Element {
   const {setTitle} = useTitleContext();
   const {setDgAlert} = useDialogAlertContext();
+  const dispatch = useDispatch<AppDispatch>();
   const [maxHeight, setMaxHeight] = useState<number>(0);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [selectedSale, setSelectedSale] = useState<SaleDetail>({} as SaleDetail);
@@ -135,6 +141,7 @@ export default function Sales(): JSX.Element {
 
   const onOpenSaleDg = () => {
     setOpenSaleDg(true);
+    dispatch(fetchArticles());
   }
 
   const onDeleteSale = (saleId: string) => {
@@ -142,6 +149,7 @@ export default function Sales(): JSX.Element {
       title: '¿Estas seguro?',
       textContent: `La venta con ID ${saleId} será eliminada`,
       open: true,
+      onContinue: () => {}
     })
   }
 
@@ -314,7 +322,7 @@ export default function Sales(): JSX.Element {
                 </Grid>
                 <Grid item xs={1.5} container justifyContent="center">
                   <Typography fontSize={20} fontWeight="bold" component="div">
-                    $ {row.total.toFixed(2)}
+                    $ {row.total?.toFixed(2) || 0}
                   </Typography>
                 </Grid>
                 <Grid item xs={1} container justifyContent="flex-end">

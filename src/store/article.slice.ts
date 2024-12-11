@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Article, DeletedArticleIds } from '../interfaces/article.interface';
 import { InitialState } from '../interfaces/inital-state.interface';
-import { token } from '../utils/token';
+import { getToken } from '../utils/token';
 
 const initialState: InitialState<Article[]> = {
   data: [],
@@ -21,6 +21,17 @@ const articleSlice = createSlice({
       state.loading = false;
     },
     fetchArticlesFailure(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+      state.loading = false;
+    },
+    fetchArticleByKeywordStart(state) {
+      state.loading = true;
+    },
+    fetchArticleByKeywordSuccess(state, action: PayloadAction<Article[]>) {
+      state.data = action.payload;
+      state.loading = false;
+    },
+    fetchArticleByKeywordFailure(state, action: PayloadAction<string>) {
       state.error = action.payload;
       state.loading = false;
     },
@@ -54,6 +65,9 @@ export const {
   fetchArticlesStart, 
   fetchArticlesSuccess, 
   fetchArticlesFailure,
+  fetchArticleByKeywordStart,
+  fetchArticleByKeywordSuccess,
+  fetchArticleByKeywordFailure,
   postArticleFailure,
   postArticleStart,
   postArticleSuccess,
@@ -68,11 +82,25 @@ export const fetchArticles = () => ({
     url: 'http://localhost:8000/articles',
     method: 'GET',
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: 'Bearer ' + getToken(),
     },
     onSuccess: fetchArticlesSuccess.type,
     onStart: fetchArticlesStart.type,
     onError: fetchArticlesFailure.type,
+  },
+});
+
+export const fetchArticlesByKeyword = (keyword: string) =>({
+  type: 'api/call',
+  payload: {
+    url: `http://localhost:8000/articles/?keyword=${keyword}`,
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + getToken(),
+    },
+    onSuccess: fetchArticleByKeywordSuccess.type,
+    onStart: fetchArticleByKeywordStart.type,
+    onError: fetchArticleByKeywordFailure.type,
   },
 });
 
@@ -83,7 +111,7 @@ export const postArticle = (article: Article) => ({
     method: 'POST',
     data: article,
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: 'Bearer ' + getToken(),
     },
     onSuccess: postArticleSuccess.type,
     onStart: postArticleStart.type,
@@ -97,7 +125,7 @@ export const deleteArticlesById = (articleIds: string[] | undefined) => ({
     url: `http://localhost:8000/articles/?article_ids=${articleIds?.join('&article_ids=')}`,
     method: 'DELETE',
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: 'Bearer ' + getToken(),
     },
     onSuccess: deleteArticleSuccess.type,
     onStart: deleteArticleStart.type,

@@ -1,4 +1,4 @@
-import { Dispatch, Fragment, ReactElement, Ref, SetStateAction, forwardRef } from 'react';
+import { ChangeEvent, Dispatch, Fragment, ReactElement, Ref, SetStateAction, forwardRef, useEffect, useState } from 'react';
 import {
   Button, 
   Dialog,
@@ -21,56 +21,22 @@ import {
   ListItemAvatar,
   ListItemText,
   Avatar,
+  Backdrop,
+  CircularProgress,
 } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
-import { StatusEnum } from '../../enum/status.enum';
-import { Article } from '../../interfaces/article.interface';
-import LidButton from '../common/LidButton';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from '../../store/store';
+import { fetchArticlesByKeyword } from '../../store/article.slice';
+import { useSelector } from 'react-redux';
+import { Article } from '../../interfaces/article.interface';
+import { addAllItems, addItem, removeItem } from '../../store/cart.slice';
+import SaleSummaryDg from './SaleSummary';
+import { fetchClients } from '../../store/client.slice';
 
-function createData(
-  itemCode: string,
-  item: string,
-  ticketPrice: number,
-  tax: number,
-  brand: string,
-  parcel: number,
-  otherCosts: number,
-  lidShopPrice: number,
-  profit: number,
-  status: StatusEnum
-): Article {
-  return {
-    itemCode,
-    item,
-    ticketPrice,
-    tax,
-    brand,
-    parcel,
-    otherCosts,
-    lidShopPrice,
-    profit,
-    status,
-  };
-}
-
-const rows = [
-  createData('A202413', 'GUESS MOCHILA VERDE', 305, 3.7, 'GUESS', 67, 21.29, 1650, 729, StatusEnum.AVAILABLE),
-  createData('A202414', 'STEVE NEGRA GRANDE CADENA', 452, 25.0, 'STEVE MADDEN', 51, 21.29, 1300, 450, StatusEnum.AVAILABLE),
-  createData('A202415', 'MK MOCHILA', 262, 16.0, 'GUESS', 24, 21.29, 2100, 210, StatusEnum.AVAILABLE),
-  createData('A202416', 'MK CAFÉ', 159, 6.0, 'GUESS', 24, 21.29, 2200, 400, StatusEnum.AVAILABLE),
-  createData('A202417', 'STEVE BLANCA', 356, 16.0, 'GUESS', 49, 21.29, 7690, 800, StatusEnum.AVAILABLE),
-  createData('A202418', 'STEVE AZUL CIELO', 408, 3.2, 'GUESS', 87, 21.29, 5320, 100, StatusEnum.AVAILABLE),
-  createData('A202419', 'BOLSA BLANCA COACH', 237, 9.0, 'COACH', 37, 21.29, 5403, 320, StatusEnum.AVAILABLE),
-  createData('A202420', 'MUÑEQUERA COACH BEIGE', 375, 0.0, 'GUESS', 94, 21.29, 3980, 801, StatusEnum.AVAILABLE),
-  createData('A202421', 'KP CARTERA NEGRA', 518, 26.0, 'KIPLING', 65, 21.29, 361, 540, StatusEnum.AVAILABLE),
-  createData('A202422', 'LOCIÓN LOVE SPELL CASHMERE', 392, 0.2, 'LOVE', 98, 21.29, 985, 1100, StatusEnum.AVAILABLE),
-  createData('A202423', 'CREMA LOVE SPELL', 318, 0, 'GUESS', 81, 21.29, 3500, 980, StatusEnum.AVAILABLE),
-  createData('A202424', 'LOCIÓN LOVE SPELL', 360, 19.0, 'GUESS', 9, 21.29, 1300, 430, StatusEnum.AVAILABLE),
-  createData('A202425', 'LOCIÓN LOVE SPELL', 437, 18.0, 'GUESS', 63, 21.29, 2480, 1750, StatusEnum.AVAILABLE),
-]
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -88,10 +54,48 @@ export default function SaleDg({
   setOpenDg: Dispatch<SetStateAction<boolean>>
   openDg: boolean
 }) {
+  const dispatch = useDispatch<AppDispatch>();
+  const { data: articles, loading } = useSelector((state: RootState) => state.article);
+  const { shoppingList, availableList, total } = useSelector((state: RootState) => state.cart);
+  const [openSaleSummaryDg, setOpenSaleSummaryDg] = useState<boolean>(false);
+  const [keyword, setKeyword] = useState<string>("");
 
   const handleClose = () => {
     setOpenDg(false);
   };
+
+  const onSaleContinue = () => {
+    dispatch(fetchClients());
+    setOpenSaleSummaryDg(true);
+  }
+
+  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
+    setKeyword(event.target.value);
+  };
+
+  const onAddItem = (articleAdded: Article) => {
+    dispatch(addItem(articleAdded));
+  }
+
+  const onRemoveItem = (articleRemoved: Article) => {
+    dispatch(removeItem(articleRemoved));
+  }
+
+  useEffect(() => {
+    const list = shoppingList.map(articleAvailable => articleAvailable._id);
+    const articlesAvailable = articles.filter(article => !list.includes(article._id));
+    dispatch(addAllItems(articlesAvailable));
+  }, [dispatch, articles, shoppingList])
+
+  useEffect(() => {
+    if (keyword.trim() === '') return; // No hacer nada si el keyword está vacío
+
+    const timeoutId = setTimeout(() => {
+      dispatch(fetchArticlesByKeyword(keyword));
+    }, 750);
+
+    return () => clearTimeout(timeoutId);
+  }, [keyword, dispatch]);
 
   return (
     <Fragment>
@@ -101,6 +105,14 @@ export default function SaleDg({
         onClose={handleClose}
         TransitionComponent={Transition}
       >
+        <Backdrop
+          sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={loading}
+          onClick={handleClose}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+        <SaleSummaryDg setOpenSummaryDg={setOpenSaleSummaryDg} openSummaryDg={openSaleSummaryDg}/>
         <AppBar sx={{ position: 'relative', bgcolor: 'black', color: 'white' }}>
           <Toolbar>
             <IconButton
@@ -116,7 +128,7 @@ export default function SaleDg({
             </Typography>
             <Button 
               autoFocus 
-              onClick={handleClose}
+              onClick={onSaleContinue}
               variant='outlined'
               color='inherit'
               sx={{
@@ -172,6 +184,8 @@ export default function SaleDg({
                         placeholder="Buscar Articulo"
                         color='primary'
                         inputProps={{ 'aria-label': 'search article' }}
+                        value={keyword}
+                        onChange={handleSearch}
                       />
                     <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
                     <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
@@ -180,16 +194,10 @@ export default function SaleDg({
                     </Paper>
                   </Grid>
                   <Grid item xs={4} />
-                  <Grid item xs={2} container justifyContent="flex-end">
-                    <LidButton varianttype='primary'>
-                      Siguiente
-                    </LidButton>
-                  </Grid>
                 </Grid>
-               
                 <Grid container spacing={4} paddingTop={3}>
-                  {rows.map((row, i) => (
-                    <Grid item xs={4} key={row.itemCode + i}>
+                  {availableList.map((row, i) => (
+                    <Grid item xs={4} key={row.code + i}>
                       <Card sx={{
                         border: `2px solid black`,
                         boxShadow: `6px 6px 0px black`,
@@ -204,10 +212,10 @@ export default function SaleDg({
                           />
                           <CardContent>
                             <Typography gutterBottom variant="h6" component="div">
-                              {row.itemCode}
+                              {row.code}
                             </Typography>
                             <Typography variant="body2" >
-                              {row.item}
+                              {row.name}
                             </Typography>
                           </CardContent>
                         </CardActionArea>
@@ -216,6 +224,7 @@ export default function SaleDg({
                             size="small" 
                             color="secondary" 
                             variant="contained"
+                            onClick={() => onAddItem(row)}
                             fullWidth
                           >
                             Añadir
@@ -249,30 +258,40 @@ export default function SaleDg({
                   <Typography variant="h6" component="div">
                     Articulos
                   </Typography>
-                    {rows.slice(0,5).map((row, i) => (
+                    {shoppingList.map((row, i) => (
                       <Card 
-                        key={'card-list' + i + row.itemCode}
-                        sx={{border: (theme) => `1px solid ${theme.palette.secondary.main}`, m: 1}
-                      }>
-                      <ListItem secondaryAction={
-                        <IconButton edge="end" aria-label="delete">
-                          <DeleteIcon color='error'/>
-                        </IconButton>
-                      }>
-                        <ListItemAvatar>
-                          <Avatar
-                            src={i % 2 === 0 && i % 4 === 0 ? "/public/cartera.jpg" : i % 2 === 0 ? "/public/chamarra.jpg" : "/public/bolsa.jpg"}
-                            sx={{ objectFit: 'contain' }} />
-                        </ListItemAvatar>
-                        <ListItemText primary={row.item} secondary={'$' + row.lidShopPrice} />
-                      </ListItem>
+                        key={'card-list' + i + row.code}
+                        sx={{
+                          border: (theme) => `2px solid ${theme.palette.primary.main}`,
+                          boxShadow: (theme) => `6px 6px 0px ${theme.palette.primary.main}`,
+                          marginTop: 2
+                        }}>
+                        <ListItem secondaryAction={
+                          <IconButton edge="end" aria-label="delete" onClick={() => onRemoveItem(row)}>
+                            <DeleteIcon color='primary'/>
+                          </IconButton>
+                        }>
+                          <ListItemAvatar>
+                            <Avatar
+                              src={i % 2 === 0 && i % 4 === 0 ? "/public/cartera.jpg" : i % 2 === 0 ? "/public/chamarra.jpg" : "/public/bolsa.jpg"}
+                              sx={{ objectFit: 'contain' }} />
+                          </ListItemAvatar>
+                          <ListItemText primary={row.name} secondary={'$' + row.lidShopPrice} />
+                        </ListItem>
                       </Card>
                     ))}
                   </List>
-                <Typography variant="h5" fontWeight="bold" component="div" align="right">
-                  Total: $7680.00
-                </Typography>
+                
               </CardContent>
+              <CardActions disableSpacing sx={{ justifyContent: 'flex-end', paddingRight: 2 }}>
+                <Typography 
+                  variant="h5" 
+                  fontWeight="bold" 
+                  component="div" 
+                >
+                  Total: ${total.toFixed(2)}
+                </Typography>
+              </CardActions>
             </Card>
           </Grid>
         </Grid>
