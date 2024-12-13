@@ -28,14 +28,14 @@ export default function Clients(): JSX.Element {
   const { setTitle } = useTitleContext();
   const dispatch = useDispatch();
   const [openClientDrawer, setOpenClientDrawer] = useState<boolean>(false);
-  const { data, loading } = useSelector((state: RootState) => state.clients);
-  const [selectedClient, setSelectedClient] = useState<ClientDetail>({} as ClientDetail);
+  const { data } = useSelector((state: RootState) => state.clients);
+  const [selectedClient] = useState<ClientDetail>({} as ClientDetail);
 
-  const onSelectClient = (client: ClientDetail) => {
+  /*const onSelectClient = (client: ClientDetail) => {
     setSelectedClient(client)
     setOpenClientDrawer(true);
   }
-  /*const clients = [
+  const clients = [
     {
       name: 'Alicia',
       lastName: 'Cervantes Herrera',
