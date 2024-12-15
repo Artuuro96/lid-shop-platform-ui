@@ -20,7 +20,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  console.log("=================>", import.meta.env)
+  console.log("=================>", import.meta.env.VITE_GRANT_TYPE)
 
   // Obtenemos el estado de autenticación desde Redux
   const { data, loading } = useSelector((state: RootState) => state.auth);
