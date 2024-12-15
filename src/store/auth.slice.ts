@@ -3,6 +3,7 @@ import { InitialState } from "../interfaces/inital-state.interface";
 import { Auth } from "../interfaces/auth.interface";
 import { AuthVerified } from "../interfaces/auth-verfied.interface";
 import { setTokenCredentials } from "../utils/token";
+import { redirectTo } from "./ui.slice";
 
 const initialState: InitialState<Auth> = {
   data: {
@@ -38,8 +39,8 @@ export const authSlice = createSlice({
     },
     authVerifiedSuccess(state, action: PayloadAction<AuthVerified>) {
       state.loading = false;
+      redirectTo('/articles')
       if(!action.payload.active) {
-        
         state.data.isAuthenticated = false;
       }
     },
