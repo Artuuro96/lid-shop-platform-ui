@@ -71,11 +71,11 @@ export const authenticateUser = (credentials: { username: string; password: stri
       "Content-Type": "application/x-www-form-urlencoded",
     },
     data: new URLSearchParams({
-      grant_type: import.meta.env.VITE_GRANT_TYPE,
-      client_id: import.meta.env.VITE_CLIENT_ID,
+      grant_type: import.meta.env.VITE_VERCEL_GRANT_TYPE,
+      client_id: import.meta.env.VITE_VERCEL_CLIENT_ID,
       username: credentials.username,
       password: credentials.password,
-      client_secret: import.meta.env.VITE_CLIENT_SECRET,  // Este valor lo deberías manejar de forma más segura
+      client_secret: import.meta.env.VITE_VERCEL_CLIENT_SECRET,  // Este valor lo deberías manejar de forma más segura
     }).toString(),
     onSuccess: authUserSuccess.type,
     onStart: authUserStart.type,
