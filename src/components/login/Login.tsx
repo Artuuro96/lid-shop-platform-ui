@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   Box,
   Button,
@@ -13,35 +13,46 @@ import { useDispatch, useSelector } from "react-redux";
 import { authenticateUser } from "../../store/auth.slice";
 import { RootState } from "../../store/store";
 import { useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as yup from "yup";
+
+// Esquema de validación con Yup
+const validationSchema = yup.object({
+  username: yup
+    .string()
+    .email("Ingresa un correo válido")
+    .required("El correo es requerido"),
+  password: yup.string().required("La contraseña es requerida"),
+});
 
 const Login = () => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  console.log("=================>", import.meta.env.VITE_GRANT_TYPE)
 
   // Obtenemos el estado de autenticación desde Redux
   const { data, loading } = useSelector((state: RootState) => state.auth);
 
-  const handleLogin = async () => {
-    dispatch(authenticateUser({username, password}));
-  };
+  // Formik para manejar el formulario
+  const formik = useFormik({
+    initialValues: { username: "", password: "" },
+    validationSchema,
+    onSubmit: (values) => {
+      dispatch(authenticateUser(values));
+    },
+  });
 
   useEffect(() => {
-    if(data.isAuthenticated) {
-      navigate('/')
+    if (data.isAuthenticated && !loading) {
+      navigate("/");
     }
-    
-  }, [data.isAuthenticated, navigate]);
+  }, [data, loading, navigate]);
 
   return (
-    <div style={{ height: '100%', width: '100%' }}>
+    <div style={{ height: "100%", width: "100%" }}>
       <Backdrop
-          sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-          open={loading}
-        >
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
         <CircularProgress color="inherit" />
       </Backdrop>
       <Grid
@@ -65,6 +76,7 @@ const Login = () => {
             </Typography>
             <Box
               component="form"
+              onSubmit={formik.handleSubmit}
               sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -74,31 +86,37 @@ const Login = () => {
             >
               <TextField
                 label="Usuario"
-                value={username}
-                type="text"
+                name="username"
+                type="email"
                 fullWidth
                 required
                 variant="outlined"
-                onChange={(event) => setUsername(event.target.value)}
+                value={formik.values.username}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.username && Boolean(formik.errors.username)}
+                helperText={formik.touched.username && formik.errors.username}
               />
               <TextField
                 label="Contraseña"
-                value={password}
+                name="password"
                 type="password"
                 fullWidth
                 required
                 variant="outlined"
-                onChange={(event) => setPassword(event.target.value)}
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.password && Boolean(formik.errors.password)}
+                helperText={formik.touched.password && formik.errors.password}
               />
               <Button
                 variant="contained"
                 color="primary"
                 size="large"
-                style={{
-                  borderRadius: "10px",
-                  textTransform: "none",
-                }}
-                onClick={handleLogin}
+                style={{ borderRadius: "10px", textTransform: "none" }}
+                type="submit"
+                disabled={!formik.isValid || loading}
               >
                 Iniciar Sesión
               </Button>

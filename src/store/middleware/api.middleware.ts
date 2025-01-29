@@ -42,7 +42,7 @@ export const apiMiddleware: Middleware = ({ dispatch }) => (next) => async (acti
       open: true,
       type: 'error' 
     }));
-    if(error?.response?.data?.statusCode === 401) {
+    if(error?.response?.data?.statusCode === 401 || error?.response?.data?.statusCode === 403) {
       setTimeout(() => {
         dispatch(authVerifiedFailure(''));
         dispatch(redirectTo('/login'));

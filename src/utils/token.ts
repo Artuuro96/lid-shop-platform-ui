@@ -1,5 +1,10 @@
 export const getToken = (): string => {
-  return JSON.parse(localStorage.getItem('accessToken') || '');
+  try {
+    const token = JSON.parse(localStorage.getItem('accessToken') || '');
+    return token
+  } catch (error) {
+    return '';
+  }
 }
 
 export const setTokenCredentials = (accessToken: string, expirationTime: number): void => {

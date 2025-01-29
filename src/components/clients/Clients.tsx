@@ -3,10 +3,12 @@ import { useTitleContext } from "../../context/TitleContext";
 import { getTitle } from "../../utils/get-url-path";
 import { 
   Avatar, 
+  Backdrop, 
   Card, 
   CardActions, 
   CardHeader, 
   Chip, 
+  CircularProgress, 
   Divider, 
   Grid, 
   IconButton, 
@@ -28,7 +30,7 @@ export default function Clients(): JSX.Element {
   const { setTitle } = useTitleContext();
   const dispatch = useDispatch();
   const [openClientDrawer, setOpenClientDrawer] = useState<boolean>(false);
-  const { data } = useSelector((state: RootState) => state.clients);
+  const { data, loading } = useSelector((state: RootState) => state.clients);
   const [selectedClient] = useState<ClientDetail>({} as ClientDetail);
 
   /*const onSelectClient = (client: ClientDetail) => {
@@ -184,98 +186,112 @@ export default function Clients(): JSX.Element {
 
   useEffect(() => {
     setTitle(getTitle('clients'));
-    dispatch(fetchClients())
+    dispatch(fetchClients());
   }, [dispatch, setTitle]);
+
+  function handleClose(): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={4}>
-        <Paper
-          component="form"
-          sx={{ 
-            p: '2px 4px', 
-            display: 'flex', 
-            alignItems: 'center', 
-            border: (theme) => `2px solid ${theme.palette.success.main}`,
-            boxShadow: (theme) => `6px 6px 0px ${theme.palette.success.main}`,
-            height: 48,
-            flex: '0 0 auto',
-          }}
-        >
-            <InputBase
-              sx={{ ml: 1, flex: 1 }}
-              placeholder="Buscar Cliente"
-              color='success'
-              inputProps={{ 'aria-label': 'search article' }}
-            />
-          <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-          <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
-            <SearchIcon />
-          </IconButton>
-        </Paper>
+    <div style={{ height: 100, width: '100%' }}>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+        onClick={handleClose}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <Paper
+            component="form"
+            sx={{ 
+              p: '2px 4px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              border: (theme) => `2px solid ${theme.palette.success.main}`,
+              boxShadow: (theme) => `6px 6px 0px ${theme.palette.success.main}`,
+              height: 48,
+              flex: '0 0 auto',
+            }}
+          >
+              <InputBase
+                sx={{ ml: 1, flex: 1 }}
+                placeholder="Buscar Cliente"
+                color='success'
+                inputProps={{ 'aria-label': 'search article' }}
+              />
+            <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+            <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+              <SearchIcon />
+            </IconButton>
+          </Paper>
+        </Grid>
+        <Grid item xs={4.5}/>
+        <Grid item xs={1}/>
+        <Grid item xs={1}/>
+        <Grid item xs={1.5}>
+          <LidButton 
+            varianttype={"success"} 
+            sx={{
+              height: 48
+            }}
+          >
+            Nuevo Cliente
+          </LidButton>
+        </Grid>
+        {data.map((client, i) => {
+          const intials = (client.name[0] + client.lastName[0]).toLocaleUpperCase();
+          return (
+            <Grid item xs={4} key={client.name + i}>
+              <Card sx={{
+                border: (theme) => `2px solid ${theme.palette.secondary.main}`,
+                boxShadow: (theme) => `6px 6px 0px ${theme.palette.secondary.main}`,
+                marginBottom: 2
+              }}>
+                <CardHeader
+                  avatar={
+                    <Avatar aria-label="recipe" sx={{bgcolor: (theme) => `${theme.palette.success.main}`}}>
+                      {intials}
+                    </Avatar>
+                  }
+                  action={
+                    <>
+                      <Chip 
+                        size='small'
+                        label= {i % 2 === 0 ? 'bueno' : i % 3 === 0 ? 'malo' : 'regular'} 
+                        sx={{
+                          borderRadius: 1.6, 
+                          color: 'white',
+                          bgcolor: (theme) => i % 2 === 0 ? `${theme.palette.success.main}` : i % 3 === 0 ? `${theme.palette.error.main}` : `${theme.palette.warning.main}`
+                        }} 
+                      />
+                    </>
+                  }
+                  title={`${client.name} ${client.lastName}`}
+                  subheader={client.email}
+                  sx={{ cursor: "pointer" }}
+                  onClick={() => {}}//onSelectClient(client)}
+                /> 
+                <CardActions sx={{ justifyContent: 'flex-end' }}>
+                  <IconButton aria-label="edit client">
+                    <EditIcon sx={{ color: (theme) => `${theme.palette.success.main}` }}/>
+                  </IconButton>
+                  <IconButton aria-label="delete client">
+                    <DeleteIcon sx={{ color: (theme) => `${theme.palette.error.main}` }}/>
+                  </IconButton>
+                </CardActions>
+              </Card>
+            </Grid>
+          )
+        })} 
+        <ClientDetailDrawer 
+          openDrawer={openClientDrawer} 
+          setOpenDrawer={setOpenClientDrawer} 
+          clientDetail={selectedClient}
+        />
       </Grid>
-      <Grid item xs={4.5}/>
-      <Grid item xs={1}/>
-      <Grid item xs={1}/>
-      <Grid item xs={1.5}>
-        <LidButton 
-          varianttype={"success"} 
-          sx={{
-            height: 48
-          }}
-        >
-          Nuevo Cliente
-        </LidButton>
-      </Grid>
-      {data.map((client, i) => {
-        const intials = (client.name[0] + client.lastName[0]).toLocaleUpperCase();
-        return (
-          <Grid item xs={4} key={client.name + i}>
-            <Card sx={{
-              border: (theme) => `2px solid ${theme.palette.secondary.main}`,
-              boxShadow: (theme) => `6px 6px 0px ${theme.palette.secondary.main}`,
-              marginBottom: 2
-            }}>
-              <CardHeader
-                avatar={
-                  <Avatar aria-label="recipe" sx={{bgcolor: (theme) => `${theme.palette.success.main}`}}>
-                    {intials}
-                  </Avatar>
-                }
-                action={
-                  <>
-                    <Chip 
-                      size='small'
-                      label= {i % 2 === 0 ? 'bueno' : i % 3 === 0 ? 'malo' : 'regular'} 
-                      sx={{
-                        borderRadius: 1.6, 
-                        color: 'white',
-                        bgcolor: (theme) => i % 2 === 0 ? `${theme.palette.success.main}` : i % 3 === 0 ? `${theme.palette.error.main}` : `${theme.palette.warning.main}`
-                      }} 
-                    />
-                  </>
-                }
-                title={`${client.name} ${client.lastName}`}
-                subheader={client.email}
-                sx={{ cursor: "pointer" }}
-                onClick={() => {}}//onSelectClient(client)}
-              /> 
-              <CardActions sx={{ justifyContent: 'flex-end' }}>
-                <IconButton aria-label="edit client">
-                  <EditIcon sx={{ color: (theme) => `${theme.palette.success.main}` }}/>
-                </IconButton>
-                <IconButton aria-label="delete client">
-                  <DeleteIcon sx={{ color: (theme) => `${theme.palette.error.main}` }}/>
-                </IconButton>
-              </CardActions>
-            </Card>
-          </Grid>
-        )
-      })} 
-      <ClientDetailDrawer 
-        openDrawer={openClientDrawer} 
-        setOpenDrawer={setOpenClientDrawer} 
-        clientDetail={selectedClient}
-      />
-    </Grid>
+    </div>
   )
 }

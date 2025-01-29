@@ -3,11 +3,10 @@ import { InitialState } from "../interfaces/inital-state.interface";
 import { Auth } from "../interfaces/auth.interface";
 import { AuthVerified } from "../interfaces/auth-verfied.interface";
 import { setTokenCredentials } from "../utils/token";
-import { redirectTo } from "./ui.slice";
 
 const initialState: InitialState<Auth> = {
   data: {
-    isAuthenticated: localStorage.getItem('isAuth') || false,
+    isAuthenticated: localStorage.getItem('isAuth') === 'true',
   } as Auth,
   error: null,
   loading: false,
@@ -21,6 +20,7 @@ export const authSlice = createSlice({
       state.loading = true;
     },
     authUserSuccess(state, action: PayloadAction<Auth>) {
+      localStorage.clear();
       state.loading = false;
       state.data = action.payload;
       const expirationTime = new Date().getTime() + action.payload.expires_in * 1000; 
@@ -31,7 +31,6 @@ export const authSlice = createSlice({
     authUserFailure(state, action: PayloadAction<string>) {
       state.loading = false;
       state.error = action.payload;
-      localStorage.clear();
       state.data.isAuthenticated = false;
     },
     authVerifiedStart(state) {
@@ -39,10 +38,15 @@ export const authSlice = createSlice({
     },
     authVerifiedSuccess(state, action: PayloadAction<AuthVerified>) {
       state.loading = false;
-      redirectTo('/articles')
       if(!action.payload.active) {
         state.data.isAuthenticated = false;
       }
+    },
+    logoutUser(state) {
+      console.log("AQUI ESTOYYYYYY", state.data)
+      state.loading = false;
+      localStorage.clear();
+      state.data.isAuthenticated = false;
     },
     authVerifiedFailure(state, action: PayloadAction<string>) {
       localStorage.clear();
@@ -60,6 +64,7 @@ export const {
   authVerifiedStart,
   authVerifiedSuccess,
   authVerifiedFailure,
+  logoutUser
 } = authSlice.actions;
 
 export const authenticateUser = (credentials: { username: string; password: string }) => ({

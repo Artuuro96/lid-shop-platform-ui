@@ -24,9 +24,9 @@ export default function Router(): ReactNode {
     {
       path: '/',
       element: (
-          <TitleContextProvider>
-            <MiniDrawer />
-          </TitleContextProvider>
+        <TitleContextProvider>
+          <MiniDrawer />
+        </TitleContextProvider>
       ),
       children: [
         {

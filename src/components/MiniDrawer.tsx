@@ -21,8 +21,11 @@ import Avatar from '@mui/material/Avatar';
 import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SwitchAccountIcon from '@mui/icons-material/SwitchAccount';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useTitleContext } from '../context/TitleContext';
+import { Menu, MenuItem, Tooltip } from '@mui/material';
+import { logoutUser } from '../store/auth.slice';
+import { useDispatch } from 'react-redux';
 
 const drawerWidth = 240;
 
@@ -108,7 +111,14 @@ const menuItems = [
 export default function MiniDrawer() {
   const theme = useTheme();
   const { title } = useTitleContext();
+  const navigate = useNavigate();
+  const dispatch = useDispatch()
   const [open, setOpen] = React.useState(false);
+
+  const handleLogout = async () => {
+    dispatch(logoutUser());
+    navigate('/login');
+  }
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -116,6 +126,24 @@ export default function MiniDrawer() {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+
+  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElNav(event.currentTarget);
+  };
+  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
   };
 
   return (
@@ -139,6 +167,36 @@ export default function MiniDrawer() {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {title}
           </Typography>
+          <Box sx={{ flexGrow: 0 }}>
+            <Tooltip title="Open settings">
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              sx={{ mt: '45px' }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+            >
+              <MenuItem onClick={handleCloseUserMenu}>
+                <Typography sx={{ textAlign: 'center' }}>Configuración</Typography>
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <Typography sx={{ textAlign: 'center' }} >Cerrar Sesión</Typography>
+              </MenuItem>
+            </Menu>
+          </Box>
           <Avatar sx={{ bgcolor: 'primary.main' }}>DM</Avatar> 
         </Toolbar>
       </AppBar>

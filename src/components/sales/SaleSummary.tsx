@@ -166,7 +166,10 @@ export default function SaleSummaryDg({
   }
 
   const onSelectPaymentMethod = (paymentMethod: number) => {
-    setPaymentMethodSelected(paymentMethod)
+    setSaleData({
+      ...saleData,
+      paymentMethod
+    })
   }
 
   const createNewSale = () => {
