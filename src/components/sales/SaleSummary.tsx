@@ -1,9 +1,11 @@
 import {
   Autocomplete, 
   Avatar, 
+  Backdrop, 
   Card, 
   CardActionArea, 
   CardContent, 
+  CircularProgress, 
   Dialog, 
   DialogContent, 
   DialogTitle, 
@@ -15,8 +17,7 @@ import {
   InputLabel, 
   List, 
   ListItem, 
-  ListItemAvatar, 
-  ListItemIcon, 
+  ListItemAvatar,
   ListItemText, 
   MenuItem, 
   Paper, 
@@ -125,6 +126,7 @@ export default function SaleSummaryDg({
 }) {
   const { data: clientsData } = useSelector((state: RootState) => state.clients);
   const { shoppingList, total } = useSelector((state: RootState) => state.cart);
+  const { loading } = useSelector((state: RootState) => state.sales);
   const filter = createFilterOptions<Client>();
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
@@ -212,8 +214,8 @@ export default function SaleSummaryDg({
   const createNewSale = () => {
     saleData.articles = shoppingList;
     saleData.total = total;
-    saleData.vendorId = '';
-    saleData.clientId = '';
+    saleData.vendorId = '123';
+    saleData.clientId = selectedClient?._id || "default";
     dispatch(postSale(saleData));
   }
 
@@ -244,6 +246,12 @@ export default function SaleSummaryDg({
         onClose={() => setOpenSummaryDg(false)}
         TransitionComponent={Transition}
       >
+        {loading ? (<Backdrop
+          sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={loading}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>) : ""}
         <DialogTitle>Resumen de Venta</DialogTitle>
         <DialogContent>
         <Grid container spacing={2} paddingTop={1}>

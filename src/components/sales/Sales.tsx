@@ -14,8 +14,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useDialogAlertContext } from "../../context/DialogAlertContext";
 import { Item } from "../../interfaces/item.interface";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../store/store";
+import { AppDispatch, RootState } from "../../store/store";
 import { fetchArticles } from "../../store/article.slice";
+import { fetchSales } from "../../store/sale.slice";
+import { useSelector } from "react-redux";
 
 const rows: SaleDetail[] = [{
   saleId: 'V202401',
@@ -111,6 +113,7 @@ export default function Sales(): JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
   const [maxHeight, setMaxHeight] = useState<number>(0);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
+  const { data: salesDetail} = useSelector((state: RootState) => state.sales);
   const [selectedSale, setSelectedSale] = useState<SaleDetail>({} as SaleDetail);
   const [filteredSales, setFilteredSales] = useState<SaleDetail[]>(rows);
   const [openSaleDg, setOpenSaleDg] = useState<boolean>(false);
@@ -124,8 +127,9 @@ export default function Sales(): JSX.Element {
 
     handleResize();
     window.addEventListener('resize', handleResize);
+    dispatch(fetchSales());
     return () => window.removeEventListener('resize', handleResize);
-  }, [setTitle]);
+  }, [dispatch, setTitle]);
 
   const onSelectSale = (row: SaleDetail) => {
     setOpenDrawer(true); 

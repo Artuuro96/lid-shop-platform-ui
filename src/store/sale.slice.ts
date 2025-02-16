@@ -12,7 +12,7 @@ const initialState: InitialState<Sale[]> = {
 }
 
 const saleSlice = createSlice({
-  name: 'clients',
+  name: 'sales',
   initialState,
   reducers: {
     fetchSalesStart(state) {
@@ -31,7 +31,7 @@ const saleSlice = createSlice({
       state.loading = false;
     },
     postSalesStart(state) {
-      state.loading = false;
+      state.loading = true;
     },
     postSalesFailure(state, action: PayloadAction<Sale>) {
       state.data.push(action.payload);
@@ -49,7 +49,7 @@ export const {
   postSalesFailure,
 } = saleSlice.actions;
 
-export const fetchClients = () => ({
+export const fetchSales = () => ({
   type: 'api/call',
   payload: {
     url: `${VITE_LID_SHOP_API_BASE_URL}/sales`,

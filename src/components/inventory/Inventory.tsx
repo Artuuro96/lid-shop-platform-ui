@@ -76,7 +76,8 @@ export default function Inventory() {
           openArticleDg={openArticleDg}
           setOpenArticleDg={setOpenArticleDg}
           isEditAction={false}
-          article={{} as Data} />
+          article={{} as Data} 
+        />
         <Grid container spacing={2} paddingBottom={2}>
                 <Grid item xs={4}>
                   <Paper
