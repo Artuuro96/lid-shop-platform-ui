@@ -26,6 +26,8 @@ import { useTitleContext } from '../context/TitleContext';
 import { Menu, MenuItem, Tooltip } from '@mui/material';
 import { logoutUser } from '../store/auth.slice';
 import { useDispatch } from 'react-redux';
+import { redirectTo } from '../store/ui.slice';
+import { getUrlPath } from '../utils/get-url-path';
 
 const drawerWidth = 240;
 
@@ -102,22 +104,21 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 const menuItems = [
-  { text: 'Panel General', icon: (<DashboardIcon />), path: '/panel'}, 
-  { text: 'Ventas', icon: (<LoyaltyIcon />), path: '/ventas' }, 
-  { text: 'Inventario', icon: (<WarehouseIcon />), path: '/inventario' }, 
-  { text: 'Clientes', icon: (<SwitchAccountIcon />), path: '/clientes' }
+  { text: 'Panel General', icon: (<DashboardIcon />), path: '/panel', }, 
+  { text: 'Ventas', icon: (<LoyaltyIcon />), path: '/ventas', }, 
+  { text: 'Inventario', icon: (<WarehouseIcon />), path: '/inventario', }, 
+  { text: 'Clientes', icon: (<SwitchAccountIcon />), path: '/clientes', }
 ];
 
 export default function MiniDrawer() {
   const theme = useTheme();
   const { title } = useTitleContext();
-  const navigate = useNavigate();
   const dispatch = useDispatch()
   const [open, setOpen] = React.useState(false);
 
   const handleLogout = async () => {
     dispatch(logoutUser());
-    navigate('/login');
+    dispatch(redirectTo(getUrlPath('login')))
   }
 
   const handleDrawerOpen = () => {
@@ -238,32 +239,34 @@ export default function MiniDrawer() {
               </ListItemIcon>
             </ListItemButton>
           </ListItem>}
-          {menuItems.map((menuItem, index) => (
-            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                  color: 'white', // Texto blanco
-                }}
-                component={Link}
-                to={menuItem.path}
-              >
-                <ListItemIcon
+          {menuItems.map((menuItem, index) => {
+            const pathWithoutSlash = menuItem.path.replace('/', '');
+            return (
+              <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+                <ListItemButton
                   sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                    color: 'white', // Iconos blancos
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                    color: 'white', // Texto blanco
                   }}
+                  onClick={() => dispatch(redirectTo(pathWithoutSlash))}
                 >
-                  {menuItem.icon}
-                </ListItemIcon>
-                <ListItemText primary={menuItem.text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                      color: 'white', // Iconos blancos
+                    }}
+                  >
+                    {menuItem.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={menuItem.text} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </ListItem>
+            )
+          })}
         </List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>

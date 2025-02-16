@@ -25,18 +25,26 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { useDispatch } from "react-redux";
 import { fetchClients } from "../../store/client.slice";
+import NewClientDg from "./ClientDg";
 
 export default function Clients(): JSX.Element {
   const { setTitle } = useTitleContext();
   const dispatch = useDispatch();
   const [openClientDrawer, setOpenClientDrawer] = useState<boolean>(false);
   const { data, loading } = useSelector((state: RootState) => state.clients);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth).data;
   const [selectedClient] = useState<ClientDetail>({} as ClientDetail);
+  const [openNewClientDg, setOpenNewClientDg] = useState<boolean>(false);
+
+  const onOpenNewlientDg = () => {
+    setOpenNewClientDg(true);
+  }
 
   /*const onSelectClient = (client: ClientDetail) => {
     setSelectedClient(client)
     setOpenClientDrawer(true);
   }
+
   const clients = [
     {
       name: 'Alicia',
@@ -195,14 +203,16 @@ export default function Clients(): JSX.Element {
 
   return (
     <div style={{ height: 100, width: '100%' }}>
-      <Backdrop
+      <NewClientDg setOpenDg={setOpenNewClientDg} openDg={openNewClientDg}/>
+      { loading && isAuthenticated ? 
+      (<Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={loading}
         onClick={handleClose}
       >
         <CircularProgress color="inherit" />
-      </Backdrop>
-      <Grid container spacing={2}>
+      </Backdrop>):
+      (<Grid container spacing={2}>
         <Grid item xs={4}>
           <Paper
             component="form"
@@ -237,6 +247,7 @@ export default function Clients(): JSX.Element {
             sx={{
               height: 48
             }}
+            onClick={onOpenNewlientDg}
           >
             Nuevo Cliente
           </LidButton>
@@ -291,7 +302,8 @@ export default function Clients(): JSX.Element {
           setOpenDrawer={setOpenClientDrawer} 
           clientDetail={selectedClient}
         />
-      </Grid>
+      </Grid>)
+      }
     </div>
   )
 }

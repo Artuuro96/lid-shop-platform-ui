@@ -12,7 +12,7 @@ export interface ClientDetail {
 }
 
 export interface Client {
-  _id: string;
+  _id?: string;
   name: string;
   lastName: string;
   age: number;

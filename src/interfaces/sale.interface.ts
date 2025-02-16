@@ -1,6 +1,7 @@
 import { FrequencyEnum } from "../enum/frequency-enum";
 import { PaymentMethodEnum } from "../enum/payment-method";
 import { SaleTypeEnum } from "../enum/sale-type.enums";
+import { Article } from "./article.interface";
 import { Item } from "./item.interface";
 import { Payment } from "./payment.interface";
 
@@ -9,9 +10,9 @@ export interface Sale {
   total: number;
   createdAt: Date;
   type: SaleTypeEnum;
-  articles: [];
-  client: string;
-  vendor: string;
+  articles: Article[];
+  clientId: string;
+  vendorId: string;
   status: string
   items?: Item[];
   payments: Payment[];

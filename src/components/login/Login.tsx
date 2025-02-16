@@ -15,6 +15,8 @@ import { RootState } from "../../store/store";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { getUrlPath } from "../../utils/get-url-path";
+import { redirectTo } from "../../store/ui.slice";
 
 // Esquema de validación con Yup
 const validationSchema = yup.object({
@@ -43,9 +45,10 @@ const Login = () => {
 
   useEffect(() => {
     if (data.isAuthenticated && !loading) {
-      navigate("/");
+      dispatch(redirectTo(getUrlPath('dashboard')));
+      return;
     }
-  }, [data, loading, navigate]);
+  }, [data, dispatch, loading, navigate]);
 
   return (
     <div style={{ height: "100%", width: "100%" }}>

@@ -1,27 +1,27 @@
-import { 
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
+import {
   Autocomplete, 
   Avatar, 
   Card, 
   CardActionArea, 
   CardContent, 
-  Checkbox, 
   Dialog, 
   DialogContent, 
   DialogTitle, 
   FilterOptionsState, 
-  FormControlLabel, 
-  FormGroup, 
+  FormControl,
   Grid, 
   InputAdornment, 
   InputBase, 
+  InputLabel, 
   List, 
   ListItem, 
   ListItemAvatar, 
+  ListItemIcon, 
   ListItemText, 
+  MenuItem, 
   Paper, 
+  Select, 
+  SelectChangeEvent, 
   Slide,
   Table,
   TableBody,
@@ -34,16 +34,13 @@ import {
   styled, 
   tableCellClasses
 } from "@mui/material";
+import { PriceChange, CreditScore, Payments, CreditCard, MobileScreenShare } from '@mui/icons-material';
 import { TransitionProps } from "@mui/material/transitions";
 import { ChangeEvent, Dispatch, Fragment, ReactElement, Ref, SetStateAction, forwardRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { Client } from "../../interfaces/client-detail.interface";
 import LidButton from "../common/LidButton";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import PaymentsIcon from '@mui/icons-material/Payments';
-import CreditCardIcon from '@mui/icons-material/CreditCard';
-import MobileScreenShareIcon from '@mui/icons-material/MobileScreenShare';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -53,6 +50,42 @@ import { FrequencyEnum } from "../../enum/frequency-enum";
 import { Dayjs } from "dayjs";
 import { ScheduledPayments } from "../../interfaces/sale-detail.interface";
 import { Sale } from "../../interfaces/sale.interface";
+import { useDispatch } from "react-redux";
+import { postSale } from "../../store/sale.slice";
+import { SaleType } from "../../interfaces/sale-type.interface";
+import { PaymentMethodEnum } from "../../enum/payment-method";
+import { PaymentType } from "../../interfaces/payment-type.interface";
+
+const saleTypes: SaleType[] = [
+  {
+    id: 0,
+    name: "Contado",
+    type: SaleTypeEnum.ONE_PAYMENT,
+  },
+  {
+    id: 1,
+    name: "Crédito",
+    type: SaleTypeEnum.CREDIT,
+  },
+];
+
+const paymentMethods: PaymentType[] = [
+  {
+    id: 0,
+    name: "Efectivo",
+    type: PaymentMethodEnum.CASH,
+  },
+  {
+    id: 1,
+    name: "Tarjeta de Crédito",
+    type: PaymentMethodEnum.CREDIT_CARD,
+  },
+  {
+    id: 2,
+    name: "Transferencia",
+    type: PaymentMethodEnum.TANSFER,
+  }
+]
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -93,12 +126,12 @@ export default function SaleSummaryDg({
   const { data: clientsData } = useSelector((state: RootState) => state.clients);
   const { shoppingList, total } = useSelector((state: RootState) => state.cart);
   const filter = createFilterOptions<Client>();
-  const [value, setValue] = useState<Client | null>(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
-  const [expanded, setExpanded] = useState<string | false>(false);
-  const [payamentMethods] = useState(["Efectivo", "Tarjeta de Crédito", "Transferencia"]);
-  const [paymentMethodSelected, setPaymentMethodSelected] = useState(0);
+  const [saleTypeSelected, setSaleTypeSelected] = useState<number | null>(null);
+  const [paymentMethodSelected, setPaymentMethodSelected] = useState<number | null>(null);
   const [saleData, setSaleData] = useState<Sale>({} as Sale);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setClients(clientsData)
@@ -130,11 +163,6 @@ export default function SaleSummaryDg({
     return `${option.name} ${option.lastName}`
   }
 
-  const handleChange =
-    (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpanded(isExpanded ? panel : false);
-    };
-
   const onChangeAdvance = (event: ChangeEvent<HTMLInputElement>) => {
     if(!event.target.value) {
       setSaleData({
@@ -165,15 +193,28 @@ export default function SaleSummaryDg({
     });
   }
 
-  const onSelectPaymentMethod = (paymentMethod: number) => {
+  const onSelectSaleType = (saleType: SaleType) => {
+    setSaleTypeSelected(saleType.id);
     setSaleData({
       ...saleData,
-      paymentMethod
-    })
+      type: saleType.type,
+    });
+  }
+
+  const onSelectPaymentType = (paymentType: PaymentType) => {
+    setPaymentMethodSelected(paymentType.id);
+    setSaleData({
+      ...saleData,
+      paymentMethod: paymentType.type,
+    });
   }
 
   const createNewSale = () => {
-    console.log("=============> saleData", saleData);
+    saleData.articles = shoppingList;
+    saleData.total = total;
+    saleData.vendorId = '';
+    saleData.clientId = '';
+    dispatch(postSale(saleData));
   }
 
   const calculateScheduledPayments = (paymentDate: Date, saleData: Sale): ScheduledPayments[] => {
@@ -220,14 +261,14 @@ export default function SaleSummaryDg({
             }}
             >
             <Autocomplete
-              value={value || ''}
+              value={selectedClient || ''}
               onChange={(_event, newValue) => {
                 if (typeof newValue === 'string') {
                   return
                 } else if (newValue && newValue.inputValue) {
                   return
                 } else {
-                  setValue(newValue)
+                  setSelectedClient(newValue)
                 }
               }}
               filterOptions={onFilterOptions}
@@ -292,242 +333,175 @@ export default function SaleSummaryDg({
                     flexDirection: 'column' 
                   }}
                 >
-                  <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1bh-content"
-                    id="panel1bh-header"
-                    sx={{bgcolor: (theme) => saleData.type ? theme.palette.success.main : theme.palette.grey[100]}}
-                  >
-                    <Typography sx={{ width: '33%', flexShrink: 0 }}>
-                      Tipo de Venta
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Grid container>
-                      <FormGroup aria-label="position" row>
-                        <FormControlLabel
-                          value="start"
-                          control={
-                            <Checkbox 
-                              color="secondary"
-                              onChange={() => setSaleData({
-                                ...saleData,
-                                type: SaleTypeEnum.ONE_PAYMENT
-                              })}
-                              checked={saleData.type === SaleTypeEnum.ONE_PAYMENT}
-                            />
-                          }
-                          label="Contado"
-                          labelPlacement="start"
-                        />
-                        <FormControlLabel
-                          value="start"
-                          control={
-                            <Checkbox 
-                              color="secondary"
-                              onChange={() => setSaleData({
-                                ...saleData,
-                                type: SaleTypeEnum.CREDIT
-                              })}
-                              checked={saleData.type === SaleTypeEnum.CREDIT}
-                            />
-                          }
-                          label="Diferido a Pagos"
-                          labelPlacement="start"
-                        />
-                      </FormGroup>
+                  <Grid container spacing={3}>
+                    {saleTypes.map((saleType, i) => (
+                      <Grid item xs={6} key={saleType.name + i}>
+                        <Card sx={{
+                          border: (theme) => i === saleTypeSelected ? `2px solid ${theme.palette.success.main}` : `2px solid ${theme.palette.common.black}`,
+                          boxShadow: (theme) => i === saleTypeSelected ? `6px 6px 0px ${theme.palette.success.main}` : `6px 6px 0px ${theme.palette.common.black}`,
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                          <CardActionArea onClick={() => onSelectSaleType(saleType)}>
+                            <CardContent 
+                              style={{
+                                textAlign: 'center',
+                                display: 'flex',
+                                flexDirection: 'row', // Cambié aquí para que los elementos estén en fila
+                                alignItems: 'center',
+                                justifyContent: 'flex-start', // Alinea el contenido al inicio
+                                padding: '8px', // Opcional, para agregar algo de espacio
+                              }}>
+                              <Avatar sx={{
+                                bgcolor: (theme) => i === saleTypeSelected ? theme.palette.success.main : theme.palette.common.black,
+                                marginRight: '8px', 
+                              }}>
+                                {saleType.type === SaleTypeEnum.ONE_PAYMENT ? 
+                                (<PriceChange/>) :
+                                (<CreditScore />)
+                                }
+                              </Avatar>
+                              <Typography fontSize={15} component="div" mt={1}>
+                                {saleType.name}
+                              </Typography>
+                            </CardContent>
+                          </CardActionArea>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                  <Grid container spacing={2} mt={1}>
+                    <Grid item xs={4}>
+                      <FormControl fullWidth>
+                        <InputLabel color="secondary" id="demo-select-small-label">Periodo de Pago</InputLabel>
+                        <Select
+                          labelId="demo-select-small-label"
+                          id="demo-select-small"
+                          value={saleData.frequencyPayment}
+                          label="Periodo de Pago"
+                          color="secondary"
+                          onChange={(event: SelectChangeEvent) => setSaleData({
+                            ...saleData,
+                            frequencyPayment: event.target.value as FrequencyEnum
+                          })}
+                        >
+                          <MenuItem value={FrequencyEnum.WEEKLY}>Semanal</MenuItem>
+                          <MenuItem value={FrequencyEnum.BIWEEKLY}>Quincenal</MenuItem>
+                        </Select>
+                      </FormControl>
                     </Grid>
-                  </AccordionDetails>
-                  </Accordion>
-                  <Accordion 
-                    expanded={expanded === 'panel2'} 
-                    onChange={handleChange('panel2')} 
-                    disabled={saleData.type !== SaleTypeEnum.CREDIT}
-                  >
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="panel2bh-content"
-                      id="panel2bh-header"
-                      sx={{
-                        bgcolor: (theme) => {
-                          if(saleData.type && saleData.paymentsNumber !== 0) {
-                            return theme.palette.success.main;
-                          }
-                          return theme.palette.grey[100];
-                        }
-                      
-                      }}
-                    >
-                      <Typography sx={{ width: '33%', flexShrink: 0 }}>Periodo de Pagos</Typography>
-                    
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Grid container justifyContent="center">
-                        <FormGroup aria-label="position" row>
-                          <Grid item xs={4.5} >
-                            <FormControlLabel
-                              value=""
-                              control={
-                                <Checkbox 
-                                  checked={saleData.frequencyPayment === FrequencyEnum.WEEKLY}
-                                  color="secondary"
-                                  onChange={() => setSaleData({
-                                  ...saleData,
-                                  frequencyPayment: FrequencyEnum.WEEKLY
-                                })}/>
-                            }
-                              label="Semanal"
-                              labelPlacement="start"
-                            />
-                          </Grid>
-                          <Grid item xs={4.5} >
-                            <FormControlLabel
-                              value=""
-                              control={
-                                <Checkbox 
-                                  checked={saleData.frequencyPayment === FrequencyEnum.BIWEEKLY}
-                                  color="secondary"
-                                  onChange={() => setSaleData({
-                                  ...saleData,
-                                  frequencyPayment: FrequencyEnum.BIWEEKLY
-                                })}/>
-                              }
-                              label="Quincenal"
-                              labelPlacement="start"
-                            />
-                          </Grid>
-                          <Grid item xs={3} >
-                            <TextField 
-                              color="secondary"
-                              size="small" 
-                              label="Pagos" 
-                              value={saleData?.paymentsNumber || 0}
-                              onChange={(event: ChangeEvent<HTMLInputElement>) => setSaleData({
-                                ...saleData,
-                                paymentsNumber: parseInt(event.target.value) || 0
-                              })}
-                            />                          
-                          </Grid>
-                        </FormGroup>
+                    <Grid item xs={4} >
+                      <TextField 
+                        color="secondary"
+                        label="Pagos" 
+                        fullWidth
+                        value={saleData?.paymentsNumber || 0}
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => setSaleData({
+                          ...saleData,
+                          paymentsNumber: parseInt(event.target.value) || 0
+                        })}
+                      />                          
+                    </Grid>
+                    <Grid item xs={4}>
+                      <TextField 
+                        id="advance" 
+                        label="Código de Promoción" 
+                        variant="outlined" 
+                        value={saleData.advance}
+                        onChange={onChangeAdvance}
+                        fullWidth
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid container spacing={2} mt={1}>
+                    <Grid item xs={6}>
+                      <TextField 
+                        id="advance" 
+                        label="Adelanto" 
+                        variant="outlined" 
+                        value={saleData.advance}
+                        onChange={onChangeAdvance}
+                        fullWidth
+                        InputProps={{
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          endAdornment: <InputAdornment position="start">MXN</InputAdornment>,
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          label="Siguiente Pago"
+                          format="DD/MM/YYYY"
+                          value={getNextPaymentDate(new Date(), saleData.frequencyPayment)}
+                          onChange={(value) => onChangeNextPayment(value, saleData)}
+                        />
+                      </LocalizationProvider>
+                    </Grid>
+                    {paymentMethods.map((method, i) => (
+                      <Grid item xs={4} key={method.name + i}>
+                        <Card sx={{
+                          border: (theme) => i === paymentMethodSelected ? `2px solid ${theme.palette.success.main}` : `2px solid ${theme.palette.common.black}`,
+                          boxShadow: (theme) => i === paymentMethodSelected ? `6px 6px 0px ${theme.palette.success.main}` : `6px 6px 0px ${theme.palette.common.black}`,
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                          <CardActionArea onClick={() => onSelectPaymentType(method)}>
+                            <CardContent 
+                              style={{
+                                textAlign: 'center',
+                                display: 'flex',
+                                flexDirection: 'row', // Cambié aquí para que los elementos estén en fila
+                                alignItems: 'center',
+                                justifyContent: 'flex-start', // Alinea el contenido al inicio
+                                padding: '8px', // Opcional, para agregar algo de espacio
+                              }}>
+                              <Avatar sx={{
+                                bgcolor: (theme) => i === paymentMethodSelected ? theme.palette.success.main : theme.palette.common.black,
+                                marginRight: '8px', 
+                              }}>
+                                {method.name === 'Efectivo' ? 
+                                (<Payments/>) :
+                                method.name === 'Tarjeta de Crédito' ?
+                                (<CreditCard />) :
+                                (<MobileScreenShare />)
+                                }
+                              </Avatar>
+                              <Typography fontSize={15} component="div" mt={1}>
+                                {method.name}
+                              </Typography>
+                            </CardContent>
+                          </CardActionArea>
+                        </Card>
                       </Grid>
-                    </AccordionDetails>
-                  </Accordion>
-                  <Accordion 
-                    expanded={expanded === 'panel3'} 
-                    onChange={handleChange('panel3')}
-                    disabled={saleData.type !== SaleTypeEnum.CREDIT}
-                  >
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="panel3bh-content"
-                      id="panel3bh-header"
-                      sx={{bgcolor: (theme) => theme.palette.grey[100]}}
-                    >
-                      <Typography sx={{ width: '50%', flexShrink: 0 }}>
-                        Adelanto y Programación de pagos
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                          <Typography textAlign='center' variant="h5"> Total: ${total.toFixed(2)}</Typography>
-                        </Grid>
-                        <Grid item xs={6}>
-                          <TextField 
-                            id="advance" 
-                            label="Adelanto" 
-                            variant="outlined" 
-                            value={saleData.advance}
-                            onChange={onChangeAdvance}
-                            fullWidth
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                              endAdornment: <InputAdornment position="start">MXN</InputAdornment>,
-                            }}
-                          />
-                        </Grid>
-                        <Grid item xs={6}>
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                              label="Siguiente Pago"
-                              format="DD/MM/YYYY"
-                              value={getNextPaymentDate(new Date(), saleData.frequencyPayment)}
-                              onChange={(value) => onChangeNextPayment(value, saleData)}
-                            />
-                          </LocalizationProvider>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Table sx={{ minWidth: '100%' }} aria-label="customized table" size="small">
-                            <TableHead>
-                              <TableRow>
-                                <StyledTableCell align="center">Pago</StyledTableCell>
-                                <StyledTableCell align="center">Fecha</StyledTableCell>
-                                <StyledTableCell align="center">Cantidad</StyledTableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {saleData?.scheduledPayments?.map((scheduledPayment, i) => (
-                                <StyledTableRow key={i}>
-                                  <StyledTableCell align="center">{i + 1}</StyledTableCell>
-                                  <StyledTableCell align="center">{formatDate(scheduledPayment.dateToPay.toDateString())}</StyledTableCell>
-                                  <StyledTableCell align="center">${scheduledPayment.quantity.toFixed(2)}</StyledTableCell>
-                                </StyledTableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </Grid>
-                      </Grid>
-                    </AccordionDetails>
-                  </Accordion>
-                  <Accordion expanded={expanded === 'panel4'} onChange={handleChange('panel4')}>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="panel4bh-content"
-                      id="panel4bh-header"
-                      sx={{bgcolor: (theme) => theme.palette.grey[200]}}
-                    >
-                      <Typography sx={{ width: '33%', flexShrink: 0 }}>Metodo de Pago</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Grid container spacing={2}>
-                        {payamentMethods.map((method, i) => (
-                          <Grid item xs={4} key={method + i}>
-                            <Card sx={{
-                              border: (theme) => i === paymentMethodSelected ? `2px solid ${theme.palette.success.main}` : `2px solid ${theme.palette.common.black}`,
-                              boxShadow: (theme) => i === paymentMethodSelected ? `6px 6px 0px ${theme.palette.success.main}` : `6px 6px 0px ${theme.palette.common.black}`,
-                              height: '100%',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                            }}>
-                              <CardActionArea onClick={() => onSelectPaymentMethod(i)}>
-                                <CardContent 
-                                  style={{ 
-                                    textAlign: 'center', 
-                                    display: 'flex', 
-                                    flexDirection: 'column',
-                                    alignItems: 'center' 
-                                  }}>
-                                  <Avatar sx={{ width: 50, height: 50, mb: 1, bgcolor: (theme) => i === paymentMethodSelected ? theme.palette.success.main : theme.palette.common.black}}>
-                                    {method === 'Efectivo' ? 
-                                    (<PaymentsIcon/>) : method === 'Transferencia' ? 
-                                    (<MobileScreenShareIcon />) : (<CreditCardIcon />)
-                                    }
-                                  </Avatar>
-                                  <Typography fontSize={15} component="div" mt={1}>
-                                    {method}
-                                  </Typography>
-                                </CardContent>
-                              </CardActionArea>
-                            </Card>
-                          </Grid>
-                        ))}
-                      </Grid>
-                    </AccordionDetails>
-                  </Accordion>
-                  
+                    ))}
+                    <Grid item xs={12} mt={1}>
+                      <Table sx={{ minWidth: '100%' }} aria-label="customized table" size="small">
+                        <TableHead>
+                          <TableRow>
+                            <StyledTableCell align="center">Pago</StyledTableCell>
+                            <StyledTableCell align="center">Fecha</StyledTableCell>
+                            <StyledTableCell align="center">Cantidad</StyledTableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {saleData?.scheduledPayments?.map((scheduledPayment, i) => (
+                            <StyledTableRow key={i}>
+                              <StyledTableCell align="center">{i + 1}</StyledTableCell>
+                              <StyledTableCell align="center">{formatDate(scheduledPayment.dateToPay.toDateString())}</StyledTableCell>
+                              <StyledTableCell align="center">${scheduledPayment.quantity.toFixed(2)}</StyledTableCell>
+                            </StyledTableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </Grid>
+                  </Grid>
                 </CardContent>
               </Card>
             </Grid>
@@ -536,7 +510,7 @@ export default function SaleSummaryDg({
               sx={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
-                paddingLeft: 2 ,
+                paddingLeft: 2,
               }}
             >
               <Card 
@@ -548,12 +522,9 @@ export default function SaleSummaryDg({
                   boxShadow: (theme) => `6px 6px 0px ${theme.palette.secondary.main}`,
                 }}
               >
-                <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper', flexGrow: 1 }}>
                   {shoppingList.map((article, index) => (
                     <ListItem key={index + 'listItem'} alignItems="flex-start">
-                      <ListItemAvatar>
-                        <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-                      </ListItemAvatar>
                       <ListItemText
                         primary={article.code + " - " + article.name}
                         secondary={
@@ -564,17 +535,29 @@ export default function SaleSummaryDg({
                               variant="body2"
                               color="text.primary"
                             >
-                             $ {article.lidShopPrice} 
+                              $ {article.lidShopPrice} 
                             </Typography>
-                            
                           </Fragment>
                         }
                       />
                     </ListItem>
                   ))}
                 </List>
+                <Typography 
+                  variant="h5" 
+                  fontWeight="bold" 
+                  component="div" 
+                  sx={{
+                    alignSelf: 'flex-end',  // Alinea el total a la derecha
+                    marginRight: 2,         // Espacio desde la derecha
+                    marginBottom: 2,        // Espacio desde la parte inferior
+                  }}
+                >
+                  Total: ${total.toFixed(2)}
+                </Typography>
               </Card>
             </Grid>
+
           </Grid>
         </Grid>
         </DialogContent>

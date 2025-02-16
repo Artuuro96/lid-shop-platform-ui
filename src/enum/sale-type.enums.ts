@@ -1,4 +1,4 @@
 export enum SaleTypeEnum {
-  ONE_PAYMENT = 'CONTADO',
-  CREDIT = 'CREDITO'
+  ONE_PAYMENT = 'ONE_PAYMENT',
+  CREDIT = 'CREDIT'
 }

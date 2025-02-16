@@ -11,7 +11,7 @@ const initialState: InitialState<Sale[]> = {
   loading: false,
 }
 
-const clientSlice = createSlice({
+const saleSlice = createSlice({
   name: 'clients',
   initialState,
   reducers: {
@@ -26,6 +26,17 @@ const clientSlice = createSlice({
       state.data = action.payload;
       state.loading = false;
     },
+    postSalesSuccess(state, action: PayloadAction<Sale>) {
+      state.data.push(action.payload);
+      state.loading = false;
+    },
+    postSalesStart(state) {
+      state.loading = false;
+    },
+    postSalesFailure(state, action: PayloadAction<Sale>) {
+      state.data.push(action.payload);
+      state.loading = false;
+    },
   }
 });
 
@@ -33,12 +44,15 @@ export const {
   fetchSalesStart,
   fetchSalesFailure,
   fetchSalesSuccess,
-} = clientSlice.actions;
+  postSalesStart,
+  postSalesSuccess,
+  postSalesFailure,
+} = saleSlice.actions;
 
 export const fetchClients = () => ({
   type: 'api/call',
   payload: {
-    url: `${VITE_LID_SHOP_API_BASE_URL}/clients`,
+    url: `${VITE_LID_SHOP_API_BASE_URL}/sales`,
     method: 'GET',
     headers: {
       Authorization: 'Bearer ' + getToken(),
@@ -49,4 +63,20 @@ export const fetchClients = () => ({
   }
 });
 
-export default clientSlice.reducer;
+export const postSale = (sale: Sale) => ({
+  type: 'api/call',
+  payload: {
+    url: `${VITE_LID_SHOP_API_BASE_URL}/sales`,
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + getToken(),
+    },
+    data: sale,
+    onSuccess: postSalesSuccess.type,
+    onStart: postSalesStart.type,
+    onError: postSale
+  },
+  
+})
+
+export default saleSlice.reducer;

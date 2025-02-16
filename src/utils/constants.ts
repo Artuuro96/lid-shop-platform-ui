@@ -19,6 +19,11 @@ export const constans = {
       title: 'Panel',
       path: '/panel',
       key: 'dashboard'
+    },
+    {
+      title: 'Login',
+      path: '/login',
+      key: 'login',
     }
   ]
 }

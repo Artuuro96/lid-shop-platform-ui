@@ -16,6 +16,7 @@ export default function Router(): ReactNode {
   const { path } = useSelector((state: RootState) => state.ui);
 
   useEffect(() => {
+    console.log('path ========>', path)
     if(path)
       navigate(path);
   }, [navigate, path])

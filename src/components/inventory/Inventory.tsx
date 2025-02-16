@@ -64,86 +64,88 @@ export default function Inventory() {
 
   return (
     <div style={{ height: maxHeight, width: '100%' }}>
-      <Backdrop
+      {
+        loading ? (<Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={loading}
       >
         <CircularProgress color="inherit" />
-      </Backdrop>
-      <ArticleDg 
-        openArticleDg={openArticleDg} 
-        setOpenArticleDg={setOpenArticleDg}
-        isEditAction={false}
-        article={{} as Data}
-      />
-      <Grid container spacing={2} paddingBottom={2}>
-        <Grid item xs={4}>
-          <Paper
-          component="form"
-          sx={{ 
-            p: '2px 4px', 
-            display: 'flex', 
-            alignItems: 'center', 
-            border: (theme) => `2px solid ${theme.palette.secondary.main}`,
-            boxShadow: (theme) => `6px 6px 0px ${theme.palette.secondary.main}`,
-            height: 48,
-            flex: '0 0 auto',
-          }}
-          >
-            <InputBase
-              sx={{ ml: 1, flex: 1 }}
-              placeholder="Buscar Venta"
-              color='secondary'
-              onChange={onSearchArticle}
-              inputProps={{ 'aria-label': 'search article' }}
-            />
-            <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-            <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
-              <SearchIcon />
-            </IconButton>
-          </Paper>
+      </Backdrop>) : (
+      <>
+        <ArticleDg
+          openArticleDg={openArticleDg}
+          setOpenArticleDg={setOpenArticleDg}
+          isEditAction={false}
+          article={{} as Data} />
+        <Grid container spacing={2} paddingBottom={2}>
+                <Grid item xs={4}>
+                  <Paper
+                    component="form"
+                    sx={{
+                      p: '2px 4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: (theme) => `2px solid ${theme.palette.secondary.main}`,
+                      boxShadow: (theme) => `6px 6px 0px ${theme.palette.secondary.main}`,
+                      height: 48,
+                      flex: '0 0 auto',
+                    }}
+                  >
+                    <InputBase
+                      sx={{ ml: 1, flex: 1 }}
+                      placeholder="Buscar Venta"
+                      color='secondary'
+                      onChange={onSearchArticle}
+                      inputProps={{ 'aria-label': 'search article' }} />
+                    <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+                    <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+                      <SearchIcon />
+                    </IconButton>
+                  </Paper>
+                </Grid>
+                <Grid item xs={4.5} />
+                <Grid item xs={1}>
+                  <LidButton
+                    component="label"
+                    varianttype="secondary"
+                    role={undefined}
+                    tabIndex={-1}
+                    fullWidth
+                    sx={{
+                      height: 48
+                    }}
+                  >
+                    Importar
+                    <VisuallyHiddenInput type="file" />
+                  </LidButton>
+                </Grid>
+                <Grid item xs={1}>
+                  <LidButton
+                    varianttype="secondary"
+                    sx={{
+                      height: 48
+                    }}
+                  >
+                    Exportar
+                  </LidButton>
+                </Grid>
+                <Grid item xs={1.5}>
+                  <LidButton
+                    varianttype="secondary"
+                    fullWidth
+                    color="secondary"
+                    onClick={onNewArticle}
+                    sx={{
+                      height: 48
+                    }}
+                  >
+                    Nuevo Articulo
+                  </LidButton>
+                </Grid>
         </Grid>
-        <Grid item xs={4.5}/>
-        <Grid item xs={1}>
-          <LidButton
-            component="label"
-            varianttype="secondary"
-            role={undefined}
-            tabIndex={-1}
-            fullWidth
-            sx={{
-              height: 48
-            }}
-          >
-            Importar
-            <VisuallyHiddenInput type="file" />
-          </LidButton>
-        </Grid>
-        <Grid item xs={1}>
-          <LidButton 
-            varianttype="secondary"
-            sx={{
-              height: 48
-            }}
-          >
-            Exportar
-          </LidButton>
-        </Grid>
-        <Grid item xs={1.5}>
-          <LidButton 
-            varianttype="secondary"
-            fullWidth
-            color="secondary"
-            onClick={onNewArticle}
-            sx={{
-              height: 48
-            }}
-          >
-            Nuevo Articulo
-          </LidButton>
-        </Grid>
-      </Grid>
-      <InventoryTable articlesData={articlesData}/>
+        <InventoryTable articlesData={articlesData} />
+      </>)
+      }
     </div>
   );
 }

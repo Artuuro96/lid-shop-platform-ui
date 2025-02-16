@@ -123,7 +123,6 @@ export default function Sales(): JSX.Element {
     };
 
     handleResize();
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [setTitle]);
