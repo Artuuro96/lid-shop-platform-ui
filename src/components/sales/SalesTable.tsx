@@ -18,15 +18,16 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
-import { Chip } from '@mui/material';
-import ArticleDg from './ArticleDg';
-import { Article } from '../../interfaces/article.interface';
+import { ArticleStatusEnum } from '../../enum/status.enum';
 import { useState, Dispatch, SetStateAction, useMemo } from 'react';
 import { useDialogAlertContext } from '../../context/DialogAlertContext';
 import { useDispatch } from 'react-redux';
 import { deleteArticlesById } from '../../store/article.slice';
-import { getChipForArticleStatus } from '../../utils/chip';
-import { ArticleStatusEnum } from '../../enum/status.enum';
+import { SaleDetail } from '../../interfaces/sale-detail.interface';
+import { getChipForArticleStatus, getChipForPaymentMethod, getChipForSaleStatus, getChipForSaleType } from '../../utils/chip';
+import { SaleTypeEnum } from '../../enum/sale-type.enums';
+import { PaymentMethodEnum } from '../../enum/payment-method';
+import { deleteSalesById } from '../../store/sale.slice';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -71,71 +72,77 @@ function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) 
 
 interface HeadCell {
   disablePadding: boolean;
-  id: keyof Article;
+  id: keyof SaleDetail;
   label: string;
   numeric: boolean;
 }
 
 const headCells: readonly HeadCell[] = [
   {
-    id: 'code',
+    id: 'saleId',
     numeric: false,
     disablePadding: true,
-    label: 'Código Item',
+    label: 'ID Venta',
   },
   {
-    id: 'name',
+    id: 'clientId',
     numeric: false,
     disablePadding: false,
-    label: 'Item',
+    label: 'Cliente',
   },
   {
-    id: 'ticketPrice',
+    id: 'advance',
     numeric: true,
     disablePadding: false,
-    label: 'Precio Ticket',
+    label: 'Adelanto',
   },
   {
-    id: 'tax',
+    id: 'debt',
     numeric: true,
     disablePadding: false,
-    label: 'Tax',
+    label: 'Restante',
   },
   {
-    id: 'parcel',
+    id: 'paymentMethod',
     numeric: true,
     disablePadding: false,
-    label: 'Paqueteria',
+    label: 'Método de Pago',
   },
   {
-    id: 'otherCosts',
+    id: 'paymentsNumber',
     numeric: true,
     disablePadding: false,
-    label: 'Gastos Varios',
+    label: 'No. de Pagos',
   },
   {
-    id: 'lidShopPrice',
-    numeric: true,
+    id: 'type',
+    numeric: false,
     disablePadding: false,
-    label: 'Precio LidShop',
+    label: 'Tipo',
   },
   {
-    id: 'profit',
+    id: 'vendorId',
     numeric: true,
     disablePadding: false,
-    label: 'Ganancia',
+    label: 'Vendido Por',
   },
   {
     id: 'status',
-    numeric: false,
+    numeric: true,
     disablePadding: false,
     label: 'Estatus',
+  },
+  {
+    id: 'total',
+    numeric: true,
+    disablePadding: false,
+    label: 'Total',
   },
 ];
 
 interface EnhancedTableProps {
   numSelected: number;
-  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Article) => void;
+  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof SaleDetail) => void;
   onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
   order: Order;
   orderBy: string;
@@ -145,7 +152,7 @@ interface EnhancedTableProps {
 function EnhancedTableHead(props: EnhancedTableProps) {
   const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
   const createSortHandler =
-    (property: keyof Article) => (event: React.MouseEvent<unknown>) => {
+    (property: keyof SaleDetail) => (event: React.MouseEvent<unknown>) => {
       onRequestSort(event, property);
     };
 
@@ -191,30 +198,28 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 interface EnhancedTableToolbarProps {
   numSelected: number;
-  setArticle: Dispatch<SetStateAction<Article>>,
-  setOpenArticle: Dispatch<SetStateAction<boolean>>
-  selectedArticles: Article[]
+  setSale: Dispatch<SetStateAction<SaleDetail>>,
+  selectedSalesDetail: SaleDetail[]
 }
 
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
   const dispatch = useDispatch();
-  const { numSelected, setOpenArticle, setArticle, selectedArticles } = props;
+  const { numSelected, setSale, selectedSalesDetail } = props;
   const { setDgAlert } = useDialogAlertContext();
 
-  const onEditItem = () => {
-    setArticle(selectedArticles[0]);
-    setOpenArticle(true);
+  const onEditSale = () => {
+    setSale(selectedSalesDetail[0]);
   }
 
-  const onDeleteItems = () => {
-    const message = selectedArticles.map(article => `<li>${article.code}</li>`);
+  const onDeleteSales = () => {
+    const message = selectedSalesDetail.map(sale => `<li>${sale._id}</li>`);
     setDgAlert({
       title: '¿Estas seguro?',
       textContent: `Lo siguientes elementos serán eliminados`,
       html: `<ul>${message.join(' ')}</ul>`,
       open: true,
       onContinue: () => {
-        dispatch(deleteArticlesById(selectedArticles.map(article => article._id)))
+        dispatch(deleteSalesById(selectedSalesDetail.map(sale => sale._id)))
         setDgAlert({
           open: false,
           textContent: '',
@@ -230,11 +235,11 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       sx={{
         pl: { sm: 2 },
         pr: { xs: 1, sm: 1 },
-        bgcolor: (theme) => theme.palette.primary.main,
+        bgcolor: (theme) => theme.palette.secondary.main,
         color: 'white',
         ...(numSelected > 0 && {
           bgcolor: (theme) =>
-            alpha(theme.palette.primary.main, 1),
+            alpha(theme.palette.secondary.main, 1),
         }),
       }}
     >
@@ -254,18 +259,18 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
           id="tableTitle"
           component="div"
         >
-          Articulos
+          Ventas
         </Typography>
       )}
       {numSelected > 0 ? (
         <>
           { numSelected > 1 || (<Tooltip title="Editar">
-            <IconButton onClick={() => onEditItem()}>
+            <IconButton onClick={onEditSale}>
               <EditIcon sx={{color: 'background.default'}}/>
             </IconButton>
           </Tooltip>)}
           <Tooltip title="Eliminar">
-            <IconButton onClick={() => onDeleteItems()}>
+            <IconButton onClick={onDeleteSales}>
               <DeleteIcon sx={{color: 'background.default'}}/>
             </IconButton>
           </Tooltip>
@@ -281,21 +286,21 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
   );
 }
 
-export default function InventoryTable({ articlesData }:{
-  articlesData: Article[],
+export default function SalesTable({ salesDetail, setOpenSaleDrawer }:{
+  salesDetail: SaleDetail[],
+  setOpenSaleDrawer: Dispatch<SetStateAction<boolean>>,
 }) {
   const [order, setOrder] = useState<Order>('asc');
-  const [orderBy, setOrderBy] = useState<keyof Article>('ticketPrice');
+  const [orderBy, setOrderBy] = useState<keyof SaleDetail>('_id');
   const [selected, setSelected] = useState<readonly string[]>([]);
-  const [selectedArticles, setSelectedArticles] = useState<Article[]>()
-  const [openArticleDg, setOpenArticleDg] = useState<boolean>(false);
-  const [article, setArticle] = useState<Article>({} as Article)
+  const [selectedSalesDetail, setSelectedSalesDetail] = useState<SaleDetail[]>()
+  const [sale, setSale] = useState<SaleDetail>({} as SaleDetail)
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleRequestSort = (
     _event: React.MouseEvent<unknown>,
-    property: keyof Article,
+    property: keyof SaleDetail,
   ) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -304,12 +309,12 @@ export default function InventoryTable({ articlesData }:{
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelected = articlesData.map((article) => article.code);
-      setSelectedArticles(articlesData);
+      const newSelected = salesDetail.map((sale) => sale._id);
+      setSelectedSalesDetail(salesDetail);
       setSelected(newSelected);
       return;
     }
-    setSelectedArticles([]);
+    setSelectedSalesDetail([]);
     setSelected([]);
   };
 
@@ -329,14 +334,14 @@ export default function InventoryTable({ articlesData }:{
         selected.slice(selectedIndex + 1),
       );
     }
-    const matchedArticles: Article[] = [];
+    const matchedSales: SaleDetail[] = [];
     newSelected.forEach(itemCode => {
-      const foundItem = articlesData.find(article => article.code === itemCode);
+      const foundItem = salesDetail.find(sale => sale._id === itemCode);
       if(foundItem) {
-        matchedArticles.push(foundItem);
+        matchedSales.push(foundItem);
       }
     })
-    setSelectedArticles(matchedArticles)
+    setSelectedSalesDetail(matchedSales)
     setSelected(newSelected);
   };
 
@@ -353,15 +358,15 @@ export default function InventoryTable({ articlesData }:{
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - articlesData.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - salesDetail.length) : 0;
 
   const visibleRows = useMemo(
     () =>
-      stableSort(articlesData, getComparator(order, orderBy)).slice(
+      stableSort(salesDetail, getComparator(order, orderBy)).slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage,
       ),
-    [articlesData, order, orderBy, page, rowsPerPage],
+    [salesDetail, order, orderBy, page, rowsPerPage],
   );
 
   return (
@@ -369,20 +374,13 @@ export default function InventoryTable({ articlesData }:{
       <Paper sx={{ 
         width: '100%', 
         mb: 2, 
-        border: (theme) => `2px solid ${theme.palette.primary.main}`,
-        boxShadow: (theme) => `6px 6px 0px ${theme.palette.primary.main}`,
+        border: (theme) => `2px solid ${theme.palette.secondary.main}`,
+        boxShadow: (theme) => `6px 6px 0px ${theme.palette.secondary.main}`,
       }}>
-        <ArticleDg 
-          openArticleDg={openArticleDg} 
-          setOpenArticleDg={setOpenArticleDg}
-          isEditAction={true}
-          article={article}
-        />
         <EnhancedTableToolbar 
           numSelected={selected.length} 
-          setArticle={setArticle}
-          setOpenArticle={setOpenArticleDg}
-          selectedArticles={selectedArticles || []}
+          setSale={setSale}
+          selectedSalesDetail={selectedSalesDetail || []}
         />
         <TableContainer>
           <Table
@@ -395,21 +393,21 @@ export default function InventoryTable({ articlesData }:{
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={articlesData.length}
+              rowCount={salesDetail.length}
             />
             <TableBody>
               {visibleRows.map((row, index) => {
-                const isItemSelected = isSelected(row.code);
+                const isItemSelected = isSelected(String(row._id));
                 const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
                   <TableRow
                     hover
-                    onClick={(event) => handleClick(event, row.code)}
+                    onClick={(event) => handleClick(event, String(row.saleId))}
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
-                    key={row.code}
+                    key={row.saleId}
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >
@@ -427,21 +425,23 @@ export default function InventoryTable({ articlesData }:{
                       id={labelId}
                       scope="row"
                       padding="none"
+                      onClick={() => setOpenSaleDrawer(true)}
                     >
-                      {row.code}
+                      {row.saleId}
                     </TableCell>
-                    <TableCell align="left">{row.name.toUpperCase()}</TableCell>
-                    <TableCell align="left">{`$ ${row.ticketPrice}`}</TableCell>
-                    <TableCell align="left">{`$ ${row.tax}`}</TableCell>
-                    <TableCell align="left">{`$ ${row.parcel}`}</TableCell>
-                    <TableCell align="left">{`$ ${row.otherCosts}`}</TableCell>
+                    <TableCell align="left">{`${row.clientId}`}</TableCell>
+                    <TableCell align="left">{`$ ${row.advance}`}</TableCell>
+                    <TableCell align="left">{`$ ${row.debt}`}</TableCell>
+                    <TableCell align="left">{getChipForPaymentMethod(row.paymentMethod as PaymentMethodEnum)}</TableCell>
+                    <TableCell align="left">{`${row.paymentsNumber}`}</TableCell>
                     <TableCell align="left" sx={{fontWeight: "bold"}}>
-                      <Chip label={`$ ${row.lidShopPrice}`} color="secondary" variant='outlined' />
+                      {getChipForSaleType(row.type as SaleTypeEnum)}
                     </TableCell>
-                    <TableCell align="left">{`$ ${row.profit}`}</TableCell>
+                    <TableCell align="left">{`${row.vendorId}`}</TableCell>
                     <TableCell align="left">
-                      {getChipForArticleStatus(row.status as ArticleStatusEnum)}
+                      {getChipForSaleStatus(row.status)}
                     </TableCell>
+                    <TableCell align="left">{`$ ${row.total}`}</TableCell>
                   </TableRow>
                 );
               })}
@@ -456,7 +456,7 @@ export default function InventoryTable({ articlesData }:{
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={articlesData.length}
+          count={salesDetail.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

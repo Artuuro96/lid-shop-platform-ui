@@ -56,6 +56,9 @@ import { postSale } from "../../store/sale.slice";
 import { SaleType } from "../../interfaces/sale-type.interface";
 import { PaymentMethodEnum } from "../../enum/payment-method";
 import { PaymentType } from "../../interfaces/payment-type.interface";
+import { getUserInfo } from "../../utils/token";
+import { showAlert } from "../../store/ui.slice";
+import { generateId } from "../../utils/id-generation";
 
 const saleTypes: SaleType[] = [
   {
@@ -214,10 +217,30 @@ export default function SaleSummaryDg({
   const createNewSale = () => {
     saleData.articles = shoppingList;
     saleData.total = total;
-    saleData.vendorId = '123';
-    saleData.clientId = selectedClient?._id || "default";
+    saleData.vendorId = getUserInfo().sub;
+    saleData.clientId = selectedClient?._id || ''
+    saleData.status = "PENDING";
+    saleData.saleId = generateId("V-")
+    if(!isValidSaleData(saleData)) {
+      return;
+    }
     dispatch(postSale(saleData));
   }
+
+  const isValidSaleData = (saleData: Sale) => {
+    Object.keys(saleData).forEach((key) => {
+      if (!saleData[key as keyof Sale]) { 
+        dispatch(showAlert({
+          message: `${key} is required, please set a value and try again` ,
+          open: true,
+          type: 'warning' 
+        }));
+        return false;
+      }
+    });
+    return true;
+  }
+  
 
   const calculateScheduledPayments = (paymentDate: Date, saleData: Sale): ScheduledPayments[] => {
     const scheduledPayments = [];
@@ -388,7 +411,7 @@ export default function SaleSummaryDg({
                         <Select
                           labelId="demo-select-small-label"
                           id="demo-select-small"
-                          value={saleData.frequencyPayment}
+                          value={saleData.frequencyPayment || ""}
                           label="Periodo de Pago"
                           color="secondary"
                           onChange={(event: SelectChangeEvent) => setSaleData({

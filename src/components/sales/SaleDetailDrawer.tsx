@@ -5,7 +5,7 @@ import { Card, CardContent, Divider, Grid, Table, TableBody, TableCell, TableHea
 import { SaleDetail } from '../../interfaces/sale-detail.interface';
 import { formatDate } from '../../utils/date.util';
 import { SaleDetailDrawerProps } from '../../interfaces/props/sale-detail-drawer-props.interface';
-import { getChipForPaymentStatus, getChipForSaleStatus } from '../../utils/chip';
+import { getChipForSaleStatus } from '../../utils/chip';
 
 export default function SaleDetailDrawer({
   openDrawer,
@@ -14,7 +14,7 @@ export default function SaleDetailDrawer({
 }: SaleDetailDrawerProps) {
   const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.primary.main,
+      backgroundColor: theme.palette.secondary.main,
       color: theme.palette.common.white,
     },
     [`&.${tableCellClasses.body}`]: {
@@ -44,7 +44,7 @@ export default function SaleDetailDrawer({
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Typography gutterBottom variant="h6" component="div">
-                {sale.saleId}
+                {sale._id}
               </Typography>
             </Grid>
             <Grid item xs={6} style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -57,17 +57,17 @@ export default function SaleDetailDrawer({
           <Grid container marginTop={1} spacing={1}>
             <Grid item xs={6}>
               <Typography fontSize={15}>
-                Tipo de Venta: {sale.saleType} 
+                Tipo de Venta: {sale.type} 
               </Typography>
             </Grid>
             <Grid item xs={6} style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Typography fontSize={15}>
-                Vendedor: {sale.vendor} 
+                Vendedor: {sale.vendorId} 
               </Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography fontSize={15}>
-                Cliente: {sale.client} 
+                Cliente: {sale.clientId} 
               </Typography>
             </Grid>
             <Grid item xs={6} style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -85,11 +85,11 @@ export default function SaleDetailDrawer({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {sale?.items?.map((item) => (
-                    <TableRow key={item.itemCode}>
-                      <TableCell>{item.itemCode}</TableCell>
-                      <TableCell>{item.item}</TableCell>
-                      <TableCell align='right'>$ {item.lidShopPrice?.toFixed(2)}</TableCell>
+                  {sale?.articles?.map((article) => (
+                    <TableRow key={article._id}>
+                      <TableCell>{article.code}</TableCell>
+                      <TableCell>{article.name}</TableCell>
+                      <TableCell align='right'>$ {article.lidShopPrice?.toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
                   <TableRow>
@@ -143,23 +143,23 @@ export default function SaleDetailDrawer({
                     <StyledTableCell align='right'>Estatus</StyledTableCell>
                   </TableRow>
                 </TableHead>
-                {sale?.payments?.length !== 0 ? 
+                {sale?.scheduledPayments?.length !== 0 ? 
                   (<TableBody>
-                    {sale?.payments?.map((payment, index) => {
+                    {sale?.scheduledPayments?.map((payment, index) => {
                       return (
-                        <TableRow key={payment.id + index}>
-                          <TableCell align='left'>{payment.number}</TableCell>
+                        <TableRow key={index}>
+                          <TableCell align='left'>{payment.quantity}</TableCell>
                           <TableCell>
-                            {payment.createdAt ? formatDate(payment.createdAt.toDateString()) : ''}
+                            {payment.dateToPay ? formatDate(payment.dateToPay.toDateString()) : ''}
                           </TableCell>
                           <TableCell>
                             ${payment.quantity?.toFixed(2)}
                           </TableCell>
                           <TableCell>
-                            {payment.receivedBy}
+                            {payment.quantity}
                           </TableCell>
                           <TableCell align='right'>
-                            {getChipForPaymentStatus(payment.status)}
+                            {/*getChipForPaymentStatus(payment?.status)*/}
                           </TableCell>
                         </TableRow>
                       )

@@ -10,13 +10,13 @@ import { TitleContextProvider } from './context/TitleContext.tsx';
 import { getUrlPath } from './utils/get-url-path.ts';
 import { useSelector } from 'react-redux';
 import { RootState } from './store/store.ts';
+import IncomesExpenses from './components/incomes-expenses/IncomesExpenses.tsx';
 
 export default function Router(): ReactNode {
   const navigate = useNavigate();
   const { path } = useSelector((state: RootState) => state.ui);
 
   useEffect(() => {
-    console.log('path ========>', path)
     if(path)
       navigate(path);
   }, [navigate, path])
@@ -46,6 +46,10 @@ export default function Router(): ReactNode {
           path: getUrlPath('inventory'),
           element: <Inventory />,
         },
+        {
+          path: getUrlPath('income-expenses'),
+          element: <IncomesExpenses />
+        }
       ],
     },
     {

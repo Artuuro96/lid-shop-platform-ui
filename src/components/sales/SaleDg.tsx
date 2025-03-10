@@ -206,9 +206,9 @@ export default function SaleDg({
                           <CardMedia
                             component="img"
                             height="150"
-                            image={i%2 === 0 && i%4 === 0 ? "/public/cartera.jpg" : i%2 === 0 ? "/public/chamarra.jpg" : "/public/bolsa.jpg"}
+                            image={row.url}
                             alt="green iguana"
-                            sx={{ objectFit: 'contain',  backgroundColor: 'white' }}
+                            sx={{ objectFit: 'contain',  backgroundColor: 'white', mt: 2}}
                           />
                           <CardContent>
                             <Typography gutterBottom variant="h6" component="div">
@@ -273,7 +273,7 @@ export default function SaleDg({
                         }>
                           <ListItemAvatar>
                             <Avatar
-                              src={i % 2 === 0 && i % 4 === 0 ? "/public/cartera.jpg" : i % 2 === 0 ? "/public/chamarra.jpg" : "/public/bolsa.jpg"}
+                              src={row.url}
                               sx={{ objectFit: 'contain' }} />
                           </ListItemAvatar>
                           <ListItemText primary={row.name} secondary={'$' + row.lidShopPrice} />

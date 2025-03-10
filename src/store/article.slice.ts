@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Article, DeletedArticleIds } from '../interfaces/article.interface';
 import { InitialState } from '../interfaces/inital-state.interface';
 import { getToken } from '../utils/token';
+const { VITE_LID_SHOP_API_BASE_URL } = import.meta.env;
 
 const initialState: InitialState<Article[]> = {
   data: [],
@@ -58,6 +59,13 @@ const articleSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
+    postArticleImageStart(state) {
+      state.loading = true;
+    },
+    postArticleImageFailure(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+      state.loading = false
+    }
   },
 });
 
@@ -79,7 +87,7 @@ export const {
 export const fetchArticles = () => ({
   type: 'api/call',
   payload: {
-    url: 'http://localhost:8000/articles',
+    url: `${VITE_LID_SHOP_API_BASE_URL}/articles`,
     method: 'GET',
     headers: {
       Authorization: 'Bearer ' + getToken(),
@@ -93,7 +101,7 @@ export const fetchArticles = () => ({
 export const fetchArticlesByKeyword = (keyword: string) =>({
   type: 'api/call',
   payload: {
-    url: `http://localhost:8000/articles/?keyword=${keyword}`,
+    url: `${VITE_LID_SHOP_API_BASE_URL}/articles/?keyword=${keyword}`,
     method: 'GET',
     headers: {
       Authorization: 'Bearer ' + getToken(),
@@ -107,7 +115,7 @@ export const fetchArticlesByKeyword = (keyword: string) =>({
 export const postArticle = (article: Article) => ({
   type: 'api/call',
   payload: {
-    url: 'http://localhost:8000/articles',
+    url: `${VITE_LID_SHOP_API_BASE_URL}/articles`,
     method: 'POST',
     data: article,
     headers: {
@@ -122,7 +130,7 @@ export const postArticle = (article: Article) => ({
 export const deleteArticlesById = (articleIds: string[] | undefined) => ({
   type: 'api/call',
   payload: {
-    url: `http://localhost:8000/articles/?article_ids=${articleIds?.join('&article_ids=')}`,
+    url: `${VITE_LID_SHOP_API_BASE_URL}/articles/?article_ids=${articleIds?.join('&article_ids=')}`,
     method: 'DELETE',
     headers: {
       Authorization: 'Bearer ' + getToken(),

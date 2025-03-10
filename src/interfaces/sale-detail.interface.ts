@@ -1,17 +1,26 @@
-import { Item } from "./item.interface";
-import { Payment } from "./payment.interface";
+import { Article } from "./article.interface";
 
 export interface SaleDetail {
+  _id: string;
   saleId: string;
+  advance: number;
+  articles: Article[];
+  debt: number;
+  paymentMethod: string;
+  paymentsNumber: number;
   total: number;
+  type: string;
+  clientId: string;
+  vendorId: string;
+  scheduledPayments?: ScheduledPayments[];
+  status: string;
   createdAt: Date;
-  saleType: 'CONTADO' | 'CREDITO';
-  client: string;
-  vendor: string;
-  status: string
-  items: Item[];
-  payments: Payment[]
-  scheduledPayments: ScheduledPayments[];
+  createdBy: string;
+  updatedAt: Date;
+  updatedBy: string;
+  deletedAt: Date;
+  deletedBy: string;
+  deleted: boolean;
 }
 
 export interface ScheduledPayments {

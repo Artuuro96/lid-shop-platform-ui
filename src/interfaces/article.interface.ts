@@ -1,4 +1,4 @@
-import { StatusEnum } from "../enum/status.enum";
+import { ArticleStatusEnum } from "../enum/status.enum";
 
 export interface Article {
   _id: string;
@@ -10,24 +10,11 @@ export interface Article {
   otherCosts: number;
   profit: number;
   lidShopPrice: number;
-  status: StatusEnum;
+  status: ArticleStatusEnum;
   brandId: string;
+  url: string
 }
 
 export interface DeletedArticleIds {
   deletedIds: string[];
-}
-
-export interface Data {
-  _id: string;
-  code: string;
-  name: string;
-  ticketPrice: number;
-  tax: number;
-  parcel: number;
-  otherCosts: number;
-  profit: number;
-  lidShopPrice: number;
-  status: StatusEnum;
-  brandId: string;
 }

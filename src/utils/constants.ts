@@ -24,6 +24,11 @@ export const constans = {
       title: 'Login',
       path: '/login',
       key: 'login',
+    },
+    {
+      title: 'Ingresos y Egresos',
+      path: '/ingresos-egresos',
+      key: 'income-expenses',
     }
   ]
 }

@@ -26,8 +26,7 @@ import Autocomplete, {
   createFilterOptions 
 } from '@mui/material/Autocomplete';
 import { 
-  Article, 
-  Data 
+  Article,
 } from '../../interfaces/article.interface';
 import { Brand } from '../../interfaces/brand.interface';
 import ImageUploadArea from './DragUploadImg';
@@ -46,10 +45,11 @@ export default function ArticleDg({
   openArticleDg: boolean,
   setOpenArticleDg: Dispatch<SetStateAction<boolean>>,
   isEditAction: boolean,
-  article: Data,
+  article: Article,
 }): JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
   const { data: brandsData } = useSelector((state: RootState) => state.brands);
+  const { data } = useSelector((state: RootState) => state.files)
   const [newArticle, setNewArticle] = useState<Article>(article);
   const [value, setValue] = useState<Brand | null>(null);
   const [openBrandDg, setOpenBrandDg] = useState<boolean>(false);
@@ -67,6 +67,7 @@ export default function ArticleDg({
 
   const onSaveNewArticle = (): void => {
     setOpenArticleDg(false);
+    newArticle.url = data.url || "";
     dispatch(postArticle(newArticle))
   }
 

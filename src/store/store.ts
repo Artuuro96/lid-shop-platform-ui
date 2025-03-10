@@ -7,6 +7,8 @@ import cartReducer from "./cart.slice";
 import clientReducer from "./client.slice";
 import authReducer from "./auth.slice";
 import saleReducer from "./sale.slice";
+import fileReducer from "./file.slice";
+import paymentReducer from "./payments.slice";
 
 export const store = configureStore({
   reducer: {
@@ -17,6 +19,8 @@ export const store = configureStore({
     clients: clientReducer,
     sales: saleReducer,
     auth: authReducer,
+    files: fileReducer,
+    payments: paymentReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiMiddleware), 
 })

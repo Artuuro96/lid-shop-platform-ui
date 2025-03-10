@@ -28,6 +28,7 @@ import { logoutUser } from '../store/auth.slice';
 import { useDispatch } from 'react-redux';
 import { redirectTo } from '../store/ui.slice';
 import { getUrlPath } from '../utils/get-url-path';
+import { SwapVerticalCircle } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -107,7 +108,8 @@ const menuItems = [
   { text: 'Panel General', icon: (<DashboardIcon />), path: '/panel', }, 
   { text: 'Ventas', icon: (<LoyaltyIcon />), path: '/ventas', }, 
   { text: 'Inventario', icon: (<WarehouseIcon />), path: '/inventario', }, 
-  { text: 'Clientes', icon: (<SwitchAccountIcon />), path: '/clientes', }
+  { text: 'Clientes', icon: (<SwitchAccountIcon />), path: '/clientes', },
+  { text: 'Ingresos y Egresos', icon: (<SwapVerticalCircle/>), path: '/ingresos-egresos', }
 ];
 
 export default function MiniDrawer() {
