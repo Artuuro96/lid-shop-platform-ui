@@ -22,6 +22,7 @@ export const store = configureStore({
     files: fileReducer,
     payments: paymentReducer,
   },
+  devTools: true,
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiMiddleware), 
 })
 

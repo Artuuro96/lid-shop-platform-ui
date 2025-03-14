@@ -47,7 +47,7 @@ export default function Inventory() {
   useEffect(() => {
     setTitle(getTitle('inventory'));
     const handleResize = () => {
-      const height = window.innerHeight - 200; // Adjust the offset as needed
+      const height = window.innerHeight - 200;
       setMaxHeight(height);
     };
 

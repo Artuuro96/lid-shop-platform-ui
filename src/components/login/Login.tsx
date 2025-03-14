@@ -18,7 +18,6 @@ import * as yup from "yup";
 import { getUrlPath } from "../../utils/get-url-path";
 import { redirectTo } from "../../store/ui.slice";
 
-// Esquema de validación con Yup
 const validationSchema = yup.object({
   username: yup
     .string()

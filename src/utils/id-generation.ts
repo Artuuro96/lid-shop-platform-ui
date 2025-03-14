@@ -11,3 +11,5 @@ export const generateId = (prefix: string): string => {
 
   return id;
 }
+
+export const generateArticlePrefix = (): string => `A${new Date().getFullYear().toString()}`

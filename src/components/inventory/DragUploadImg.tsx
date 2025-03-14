@@ -56,7 +56,7 @@ function ImageUploadArea() {
           color="secondary"
           onClick={() => document.getElementById('file-upload')?.click()} // Abrir el input al hacer clic
         >
-          Subir
+          {selectedImage ? 'Seleccionar otra Imagen' : 'Subir Imagen'}
         </LidButton>
 
         {/* Botón para iniciar la carga de la imagen */}
@@ -64,7 +64,7 @@ function ImageUploadArea() {
           <LidButton 
             varianttype='secondary' 
             sx={{ width: '30%', marginTop: 2 }} 
-            color="primary"
+            color="secondary"
             onClick={handleImageUpload}
             disabled={loading}
           >
